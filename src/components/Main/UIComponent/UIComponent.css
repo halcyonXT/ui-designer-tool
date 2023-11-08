@@ -1,0 +1,49 @@
+.-COMPONENT {
+    overflow: visible;
+}
+
+.-COMPONENT-RELATIVE {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.-SCALE-NOTCH {
+    --notch-size: 0.7vmax;
+    position: absolute;
+    z-index: 99999;
+    height: var(--notch-size);
+    aspect-ratio: 1 / 1 !important;
+    background: var(--foreground);
+    box-sizing: border-box;
+    border-radius: 9999px;
+    border: 1px solid var(--nonaccent);
+}
+
+.-SCALE-NOTCH-TOP {
+    top: calc(0% - (var(--notch-size) / 2));
+    left: calc(50% - (var(--notch-size) / 2));
+    cursor: n-resize;
+}
+
+.-SCALE-NOTCH-RIGHT {
+    top: calc(50% - (var(--notch-size) / 2));
+    left: calc(100% - (var(--notch-size) / 2));
+    cursor: e-resize;
+}
+
+.-SCALE-NOTCH-BOTTOM {
+    top: calc(100% - (var(--notch-size) / 2));
+    left: calc(50% - (var(--notch-size) / 2));
+    cursor: s-resize;
+}
+
+.-SCALE-NOTCH-LEFT {
+    top: calc(50% - (var(--notch-size) / 2));
+    left: calc(0% - (var(--notch-size) / 2));
+    cursor: w-resize;
+}

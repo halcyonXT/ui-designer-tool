@@ -1,0 +1,34 @@
+.-navbar-logo {
+    width: 11.5vmax;
+    display: flex;
+    align-items: center;
+    padding-right: 1.5vmax;
+    margin-right: 1.5vmax;
+    box-sizing: border-box;
+    border-right: 1px solid var(--dark);
+}
+
+.-navbar-logo-img {
+    height: 80%;
+    aspect-ratio: 1 / 1;
+}
+
+.-navbar-logo-text, .-navbar-logo-subtext {
+    margin: 0;
+    margin-left: 0.5vmax;
+    font-size: 0.8vmax;
+    color: var(--accent);
+    font-family: 'Syncopate', sans-serif;
+}
+
+.-navbar-logo-subtext {
+    font-size: 0.4vmax;
+    color: var(--subnonaccent);
+}
+
+.-navbar-logo-texts-wrapper {
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
