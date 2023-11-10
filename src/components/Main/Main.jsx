@@ -9,6 +9,8 @@ import UIComponent from './UIComponent/UIComponent'
 
 const EMPTY_SNAPLINE = () => ({element: ""});
 
+let clickCounter = 0;
+
 export default function Main() {
     const {overlayOpacity} = React.useContext(OptionsContext);
     const {components} = React.useContext(ElementsContext);
@@ -49,8 +51,17 @@ export default function Main() {
     const emptySnaplines = () => setActiveSnaplines({x: EMPTY_SNAPLINE(), y: EMPTY_SNAPLINE()})
 
     const handleDeselect = (e) => {
-        if (e.target.id !== 'main') return;
-        components.selected.select(false);
+        if (e.target.id !== 'main') {
+            clickCounter = 0;
+            return;
+        } else {
+            if (clickCounter === 1) {
+                components.selected.select(false);
+                clickCounter = 0;
+            } else {
+                clickCounter++;
+            }
+        }
     }
 
 

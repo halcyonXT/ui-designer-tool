@@ -7,6 +7,7 @@
     display: flex;
     justify-content: flex-start;
 	position: relative;
+	z-index: 10;
     padding: 1vmax 1.5vmax 1vmax 1.5vmax !important;
 }
 
@@ -59,6 +60,7 @@
 	place-items: center;
 	border-radius: 0.2vmax;
 	transition-duration: 75ms;
+	position: relative;
 }
 
 .-navbar-button:hover {
@@ -135,6 +137,19 @@
 	height: 100%;
 	background: var(--dark);
 	margin-right: 1.5vmax;
+}
+
+.-navbar-button-shortcut-overlay {
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.4vmax;
+	position: absolute;
+	top: 0;
+	left: 0;
+	text-align: right;
+	height: 100%;
+	width: 100%;
+	color: var(--subnonaccent);
+	font-weight: 700;
 }
 
 /* BELOW IS RANGE SLIDER CODE DONT TOUCH */

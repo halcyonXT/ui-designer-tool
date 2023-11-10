@@ -1,6 +1,8 @@
 import React from 'react'
 import './Sidebar.css'
 import { ElementsContext } from '../../../context/ElementsContext'
+import IconAction from './IconAction'
+import {ComponentsSectionItem} from './ComponentSection'
 
 
 const ICONS = {
@@ -22,6 +24,9 @@ export default function Sidebar() {
     return (
         <div className='-sidebar'>
             <div className='-sidebar-elements-wrapper'>
+
+                <div className='-sidebar-hide-button'/>
+                
                 <div className='-sidebar-section-toolbox'>
                     <h6 className='-sidebar-title'>Components:</h6>
                     <div>
@@ -39,143 +44,14 @@ export default function Sidebar() {
                         )
                     }
                 </div>
+                <div>
+                    
+                </div>
             </div>
         </div>
     )
 }
 
 
-const CREATE_STYLES = {
-    selected: (isSelected) => isSelected ? ({background:"var(--foreground)"}) : ({}),
-    selectedSubcomponent: (isSelected) => isSelected ? ({}) : ({}),
-    selectedVerticalLine: (isSelected) => isSelected ? ({background: 'var(--dark)'}) : ({})
-}
 
-const ComponentsSectionItem = (props) => {
-    const [hovered, setHovered] = React.useState(false);
-    const {components, subcomponents} = React.useContext(ElementsContext);
-    
-    const handleSelect = () => {
-        components.selected.select(props.item._id);
-    }
 
-    const addSubcomponent = () => {
-        subcomponents.add(props.item._id);
-    }
-
-    React.useEffect(() => {
-        if (hovered) {
-            components.hover.start(props.item._id);
-        } else {
-            components.hover.end(props.item._id);
-        }
-    }, [hovered])
-
-    return (
-        <>
-            <div 
-                className='-sidebar-component' 
-                onClick={handleSelect} 
-                onMouseEnter={() => setHovered(true)} 
-                onMouseLeave={() => setHovered(false)} 
-                id={props.item._id}
-                style={{...CREATE_STYLES.selected(props.selected)}}
-            >
-                <div className='-sidebar-component-info'>
-                    {ICONS.object}
-                    <h6 className='-sidebar-component-name'>{props.item.id}</h6>
-                </div>
-                <div className='-sidebar-component-icons-wrapper'>
-                    {
-                        (hovered || props.selected)
-                        &&
-                        <IconAction x={addSubcomponent}>
-                            {
-                                ICONS.add
-                            }
-                        </IconAction>
-                    }
-                    {
-                        (hovered || props.selected)
-                        &&
-                        <IconAction x={props.delete}>
-                            {
-                                ICONS.delete
-                            }
-                        </IconAction>
-                    }
-                </div>
-            </div>
-            {
-                props.item.subcomponents.map(item => 
-                    <Subcomponent
-                        item={item}
-                        selected={props.selected}
-                    />
-                )
-            }
-        </>
-    )
-}
-
-const Subcomponent = (props) => {
-    const {subcomponents} = React.useContext(ElementsContext);
-    const [hovered, setHovered] = React.useState(false);
-
-    const startHover = () => {
-        setHovered(true);
-        subcomponents.hover.start(props.item._id);
-    }
-
-    const endHover = () => {
-        setHovered(false);
-        subcomponents.hover.end(props.item._id);
-    }
-
-    const deleteSubcomponent = () => subcomponents.remove(props.item._id)
-
-    return (
-        <>
-                <div 
-                    className='-sidebar-subcomponent' 
-                    style={{
-                        ...CREATE_STYLES.selectedSubcomponent(props.selected),
-                        ...CREATE_STYLES.selected(props.selected)
-                    }}
-                    onMouseEnter={startHover}
-                    onMouseLeave={endHover}
-                    onClick={() => subcomponents.selected.select(props.item._id)}
-                >
-                    <div className='-sidebar-component-info'>
-                        <div 
-                            className='-vertical-line'
-                            style={{...CREATE_STYLES.selectedVerticalLine(props.selected)}}
-                        ></div>
-                        {ICONS[props.item.type]}
-                        <h6 className='-sidebar-component-name'>{props.item.id}</h6>
-                    </div>
-                    <div className='-sidebar-component-icons-wrapper'>
-                        {
-                            (hovered || props.selected)
-                            &&
-                            <IconAction x={deleteSubcomponent}>
-                                {
-                                    ICONS.delete
-                                }
-                            </IconAction>
-                        }
-                    </div>
-                </div>
-
-        </>
-    )
-}
-
-const IconAction = (props) => {
-
-    return (
-        <span className='-ICON' onClick={props.x}>
-            {props.children}
-        </span>
-    )
-}

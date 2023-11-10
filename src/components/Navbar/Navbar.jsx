@@ -32,13 +32,13 @@ export default function Navbar() {
                 <h6>Game UI opacity:</h6>
                 <input type="range" className="win10-thumb -overlay-slider" min="0" max="100" value={overlayOpacity.value} onChange={changeOpacity}/>
             </Option>
-            <Button current={tool.value} val='pointer' x={() => tool.set("pointer")}>
+            <Button shortcut="M" current={tool.value} val='pointer' x={() => tool.set("pointer")}>
                 {ICONS.pointer_tool}
             </Button>
-            <Button current={tool.value} val='drag' x={() => tool.set("drag")}>
+            <Button shortcut="H" current={tool.value} val='drag' x={() => tool.set("drag")}>
                 {ICONS.drag_tool}
             </Button>
-            <Button current={tool.value} val='scale' x={() => tool.set("scale")}>
+            <Button shortcut="B" current={tool.value} val='scale' x={() => tool.set("scale")}>
                 {ICONS.scale_tool}
             </Button>
             <div className="-navbar-separator"/>
@@ -47,7 +47,7 @@ export default function Navbar() {
                     Snaplines
                 </Checkbox>
                 <Checkbox x={() => toggleOption("borders")} activated={options.value.borders}>
-                    Canvas borders
+                    Borders
                 </Checkbox>
             </Checkboxes>
 
@@ -81,6 +81,7 @@ function Checkboxes(props) {
 function Button(props) {
     return (
         <div onClick={props.x} className={`-navbar-button ${props.val && (props.val === props.current) && '-navbar-option-enabled'}`}>
+            <div className='-navbar-button-shortcut-overlay'>[{props.shortcut}]</div>
             {props.children}
         </div>
     )

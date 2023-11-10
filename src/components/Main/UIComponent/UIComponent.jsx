@@ -30,11 +30,15 @@ const CREATE_STYLES = {
                 return {cursor: "pointer"}
         }
     },
+    
 }
 
 
-
+const EMPTY_SNAPLINE = () => ({element: ""});
 const SNAPLINING_OFFSET = 1;
+
+let offset = {x: null, y: null};
+
 export default function UIComponent(props) {
 
     const {components, snaplines, subcomponents} = React.useContext(ElementsContext);
@@ -49,6 +53,40 @@ export default function UIComponent(props) {
     offsetRef.current = offset;
 
     const componentRef = React.useRef(null);
+
+
+    const [activeSnaplines, setActiveSnaplines] = React.useState({x: EMPTY_SNAPLINE(), y: EMPTY_SNAPLINE()});
+
+    const activateSnapline = (direction, percentage) => {
+        let style = direction === "x" ? ({left: `${percentage}%`}) : ({top: `${percentage}%`});
+
+        setActiveSnaplines(prev => {
+            let outp = {...prev};
+
+            let element = <div 
+                    style={style}
+                    className={`-SUBCOMPONENT-SNAPLINE -SUBCOMPONENT-SNAPLINE-${direction.toUpperCase()}`}
+                ></div>;
+
+            outp[direction] = ({
+                element: element,
+                direction,
+                percentage
+            })
+
+            return outp;
+        })
+    }
+
+    const deactivateSnapline = (direction) => {
+        setActiveSnaplines(prev => {
+            let outp = {...prev};
+            outp[direction] = EMPTY_SNAPLINE();
+            return outp;
+        });
+    }
+    
+    const emptySnaplines = () => setActiveSnaplines({x: EMPTY_SNAPLINE(), y: EMPTY_SNAPLINE()})
     
 
     const checkDragSnaplines = (key, percentage) => {
@@ -109,7 +147,7 @@ export default function UIComponent(props) {
 
     const handleMouseDown = (e) => {
         components.selected.select(props.component._id);
-        if (tool.value === "drag" && subcomponents.selected.value === null) {
+        if (tool.value === "drag") {
             startDrag(e);
         }
     }
@@ -121,8 +159,8 @@ export default function UIComponent(props) {
                 ...CREATE_STYLES.position(props.component), 
                 ...CREATE_STYLES.debug(), 
                 ...props.component._privateStyles ,
-                ...CREATE_STYLES.selected(components.selected.value === props.component._id) , 
-                ...CREATE_STYLES.cursor(tool.value)
+                ...CREATE_STYLES.selected(components.selected.value === props.component._id && subcomponents.selected.value === null) , 
+                ...CREATE_STYLES.cursor(tool.value),
             }}
             className='-COMPONENT'
             onMouseDown={handleMouseDown}
@@ -133,18 +171,34 @@ export default function UIComponent(props) {
         >
             <>
                 {
+                    // If the current selected component is this component (checked using ids) and the current tool is scale, render ScaleToolOverlay
                     props.component._id === components.selected.value && tool.value === 'scale'
                     &&
                     <ScaleToolOverlay mainRef={props.mainRef} controlSnaplines={props.controlSnaplines} component={props.component} />
                 }
+
                 <div className='-COMPONENT-RELATIVE'>
                     {
+                        // If snapline x has been activated with controlSnaplines prop in UISubcomponent
+                        activeSnaplines.x.element && activeSnaplines.x.element
+                    }
+
+                    {
+                        // If snapline x has been activated with controlSnaplines prop in UISubcomponent
+                        activeSnaplines.y.element && activeSnaplines.y.element
+                    }
+
+                    {
+                        // If the component hasnt been collapsed, render all subcomponents
+                        !props.component._componentCollapsed 
+                        &&
                         props.component.subcomponents.map(item => 
                             <UISubcomponent 
                                 key={item._id}
                                 parentRef={componentRef}
                                 component={item}
                                 parentDragActive={dragActiveRef.current}
+                                controlSnaplines={{activate: activateSnapline, deactivate: deactivateSnapline, empty: emptySnaplines}}
                             />
                         )
                     }

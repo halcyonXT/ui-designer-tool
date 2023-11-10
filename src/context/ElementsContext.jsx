@@ -19,6 +19,7 @@ let counter = 0;
 
 
 const removeIndexFromArray = (arr, index) => [...arr.slice(0, index), ...arr.slice(index + 1)];
+const extractFrameID = (str) => str.split("_")[0];
 
 
 
@@ -131,6 +132,7 @@ const ElementsContextProvider = ({ children }) => {
         setComponents(prev => [...prev, {
             _id: UID,
             _privateStyles: {},
+            _componentCollapsed: false,
             type: 'frame',
             id: `Frame_${counter}`,
             position: {
@@ -187,26 +189,49 @@ const ElementsContextProvider = ({ children }) => {
         })
     }
 
-    const updateSnapline = (id) => {
+    const updateSnapline = (id, type) => {
         // NEVER remove this timeout. Due to render-time reasons, upon multiple components moves snaplines are off by a few pixles
         // unless calculating snaplines is timed out
-        setTimeout(() => {
-            setSnaplines(prev => {
-                let outp = {...prev};
-                let ref = componentsRef.current[components.findIndex(obj => obj._id === id)].position;
-                outp[id] = {
-                    center: {
-                        x: (ref.width / 2) + ref.x, 
-                        y: (ref.height / 2) + ref.y
-                    },
-                    auxillary: {
-                        horizontal: [ref.y, ref.y + ref.height],
-                        vertical: [ref.x, ref.x + ref.width]
+        if (type === "frame") {
+            setTimeout(() => {
+                setSnaplines(prev => {
+                    let outp = {...prev};
+                    let ref = componentsRef.current[components.findIndex(obj => obj._id === id)].position;
+                    outp[id] = {
+                        center: {
+                            x: (ref.width / 2) + ref.x, 
+                            y: (ref.height / 2) + ref.y
+                        },
+                        auxillary: {
+                            horizontal: [ref.y, ref.y + ref.height],
+                            vertical: [ref.x, ref.x + ref.width]
+                        }
                     }
-                }
-                return outp;
-            })
-        }, 100)
+                    return outp;
+                })
+            }, 100)
+        } else {
+            // type === "subcomponent"
+            setTimeout(() => {
+                setSubcomponentSnaplines(prev => {
+                    let outp = {...prev};
+                    let cind = findIndexOfUID(extractFrameID(id));
+                    let sind = componentsRef.current[cind].subcomponents.findIndex(obj => obj._id === id);
+                    let ref = componentsRef.current[cind].subcomponents[sind].position;
+                    outp[id] = {
+                        center: {
+                            x: (ref.width / 2) + ref.x, 
+                            y: (ref.height / 2) + ref.y
+                        },
+                        auxillary: {
+                            horizontal: [ref.y, ref.y + ref.height],
+                            vertical: [ref.x, ref.x + ref.width]
+                        }
+                    }
+                    return outp;
+                })
+            }, 100)
+        }
     }
 
     const updateComponent = (obj, id) => {
@@ -417,10 +442,10 @@ const ElementsContextProvider = ({ children }) => {
                 },
                 snaplines: {
                     value: snaplines,
-                    update: updateSnapline,
+                    update: (UID) => updateSnapline(UID, "frame"),
                     subcomponents: {
                         value: subcomponentSnaplines,
-                        update: updateSubcomponentSnapline,
+                        update: (UID) => updateSubcomponentSnapline(UID, "subcomponent"),
                     }
                 }
             }}

@@ -9,7 +9,7 @@
     top: 0;
     left: 0;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .-SCALE-NOTCH {
@@ -46,4 +46,34 @@
     top: calc(50% - (var(--notch-size) / 2));
     left: calc(0% - (var(--notch-size) / 2));
     cursor: w-resize;
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.-SUBCOMPONENT-SNAPLINE {
+    z-index: 9999;
+    pointer-events: none;
+    animation: appear 50ms linear 0s 1 normal forwards;
+    position: absolute;
+    box-sizing: border-box;
+    background-image: repeating-linear-gradient( -45deg, rgb(231, 6, 168) , rgb(231, 6, 168) 0.25vmax, #e5e5f700 0.25vmax, #e5e5f700 0.5vmax );
+}
+
+.-SUBCOMPONENT-SNAPLINE-X {
+    height: 100%;
+    left: 50%;
+    width: 1px;
+}
+
+.-SUBCOMPONENT-SNAPLINE-Y {
+    height: 1px;
+    top: 50%;
+    width: 100%;
 }
