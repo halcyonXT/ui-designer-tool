@@ -14,6 +14,7 @@ const ICONS = {
     text: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M280-160v-520H80v-120h520v120H400v520H280Zm360 0v-320H520v-120h360v120H760v320H640Z"/></svg>,
 }
 
+
 export default function Sidebar() {
     const {components, subcomponents} = React.useContext(ElementsContext);
 
@@ -25,7 +26,6 @@ export default function Sidebar() {
         <div className='-sidebar'>
             <div className='-sidebar-elements-wrapper'>
 
-                <div className='-sidebar-hide-button'/>
                 
                 <div className='-sidebar-section-toolbox'>
                     <h6 className='-sidebar-title'>Components:</h6>
@@ -44,11 +44,43 @@ export default function Sidebar() {
                         )
                     }
                 </div>
-                <div>
-                    
+            </div>
+            <div className='-sidebar-details'>
+                <div className='-sidebar-details-title'>
+                    {
+                        components.selected.value !== null && subcomponents.selected.value === null
+                        &&
+                        <FrameSelected component={components.value[components.value.findIndex(obj => obj._id === components.selected.value)]}/>
+                    }
+                    {
+                        subcomponents.selected.value !== null
+                        &&
+                        <SubcomponentSelected 
+                            component={components.value[components.getIndexOf(subcomponents.selected.value.split('_')[0])].subcomponents[subcomponents.getIndexOf(subcomponents.selected.value)]}
+                            parent={components.value[components.getIndexOf(subcomponents.selected.value.split('_')[0])]}
+                        />
+                    }
                 </div>
             </div>
         </div>
+    )
+}
+
+const FrameSelected = (props) => {
+    return (
+        <>
+            {props.component.id}
+            <div className='-sidebar-details-title-icon'></div>
+        </>
+    )
+}
+
+const SubcomponentSelected = (props) => {
+    return (
+        <>
+            {props.parent.id}&nbsp;&nbsp;&gt;&nbsp;&nbsp;{props.component.id}
+            <div className='-sidebar-details-title-icon'></div>
+        </>
     )
 }
 

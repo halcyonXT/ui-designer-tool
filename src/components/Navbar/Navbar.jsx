@@ -32,25 +32,33 @@ export default function Navbar() {
                 <h6>Game UI opacity:</h6>
                 <input type="range" className="win10-thumb -overlay-slider" min="0" max="100" value={overlayOpacity.value} onChange={changeOpacity}/>
             </Option>
-            <Button shortcut="M" current={tool.value} val='pointer' x={() => tool.set("pointer")}>
+            <Button shortcut="Q" current={tool.value} val='pointer' x={() => tool.set("pointer")}>
                 {ICONS.pointer_tool}
             </Button>
-            <Button shortcut="H" current={tool.value} val='drag' x={() => tool.set("drag")}>
+            <Button shortcut="W" current={tool.value} val='drag' x={() => tool.set("drag")}>
                 {ICONS.drag_tool}
             </Button>
-            <Button shortcut="B" current={tool.value} val='scale' x={() => tool.set("scale")}>
+            <Button shortcut="E" current={tool.value} val='scale' x={() => tool.set("scale")}>
                 {ICONS.scale_tool}
             </Button>
             <div className="-navbar-separator"/>
             <Checkboxes>
                 <Checkbox x={() => toggleOption("snaplines")} activated={options.value.snaplines}>
-                    Snaplines
+                    Snapping
                 </Checkbox>
                 <Checkbox x={() => toggleOption("borders")} activated={options.value.borders}>
                     Borders
                 </Checkbox>
             </Checkboxes>
-
+            <div className='-navbar-whitespace'></div>
+            <Checkboxes>
+                <Checkbox x={() => toggleOption("outlines")} activated={options.value.outlines}>
+                    Element outlines
+                </Checkbox>
+                <Checkbox x={() => toggleOption("rulers")} activated={options.value.rulers}>
+                    Show rulers
+                </Checkbox>
+            </Checkboxes>
         </div>
     )
 }

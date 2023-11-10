@@ -1,5 +1,0 @@
-.-SUBCOMPONENT:hover {
-    position: absolute;
-    border: 1px dashed var(--accent);
-    z-index: 9999;
-} 

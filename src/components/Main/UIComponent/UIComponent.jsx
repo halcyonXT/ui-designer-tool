@@ -16,9 +16,9 @@ const CREATE_STYLES = {
         height: component.position.height + "%",
     }),
 
-    debug: () => ({ boxSizing: 'border-box', border: '1px solid red' }),
+    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', border: '1px solid red' }) : ({}),
 
-    selected: (isSelected) => isSelected ? {outline: `1px dashed #6dffff`, zIndex: "100"} : {},
+    selected: (isSelected) => isSelected ? {outline: `2px dashed #6dffff`, zIndex: "100"} : {},
 
     cursor: (tool) => {
         switch (tool) {
@@ -157,7 +157,7 @@ export default function UIComponent(props) {
         <div
             style={{ 
                 ...CREATE_STYLES.position(props.component), 
-                ...CREATE_STYLES.debug(), 
+                ...CREATE_STYLES.debug(options.value.outlines), 
                 ...props.component._privateStyles ,
                 ...CREATE_STYLES.selected(components.selected.value === props.component._id && subcomponents.selected.value === null) , 
                 ...CREATE_STYLES.cursor(tool.value),

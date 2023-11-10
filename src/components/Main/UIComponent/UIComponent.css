@@ -13,7 +13,7 @@
 }
 
 .-SCALE-NOTCH {
-    --notch-size: 0.7vmax;
+    --notch-size: 0.65vmax;
     position: absolute;
     z-index: 99999;
     height: var(--notch-size);
@@ -63,7 +63,7 @@
     animation: appear 50ms linear 0s 1 normal forwards;
     position: absolute;
     box-sizing: border-box;
-    background-image: repeating-linear-gradient( -45deg, rgb(231, 6, 168) , rgb(231, 6, 168) 0.25vmax, #e5e5f700 0.25vmax, #e5e5f700 0.5vmax );
+    background-image: repeating-linear-gradient(-45deg, rgb(231, 6, 168), rgb(231, 6, 168) 0.25vmax, #e5e5f700 0.25vmax, #e5e5f700 0.5vmax);
 }
 
 .-SUBCOMPONENT-SNAPLINE-X {

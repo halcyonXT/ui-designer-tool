@@ -15,6 +15,7 @@ export default function ScaleToolOverlay(props) {
 
 
     const startScale = (direction) => {
+        components._scaling.set(true);
         setDirection(direction);
         window.addEventListener("mousemove", handleScale);
         window.addEventListener("mouseup", endScale);
@@ -41,6 +42,9 @@ export default function ScaleToolOverlay(props) {
 
 
     const endScale = () => {
+        setTimeout(() => {
+            components._scaling.set(false);
+        }, 10)
         window.removeEventListener("mousemove", handleScale);
         window.removeEventListener("mouseup", endScale);
         setTimeout(() => {

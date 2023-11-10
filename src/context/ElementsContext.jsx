@@ -37,6 +37,7 @@ const ElementsContextProvider = ({ children }) => {
     const [selectedSubcomponent, setSelectedSubcomponent] = React.useState(null) 
 
     const [components, setComponents] = React.useState([]);
+    const [_scaling, _setScaling] = React.useState(false);
     const componentsRef = React.useRef(null);
     componentsRef.current = components;
 
@@ -46,6 +47,8 @@ const ElementsContextProvider = ({ children }) => {
     const [subcomponentSnaplines, setSubcomponentSnaplines] = React.useState({parentCenter: viewportCenterSnapline()})
 
     const {options} = React.useContext(OptionsContext);
+
+
 
     const clamp = (min, val, max) => {
         if (!options.value.borders) return val;
@@ -263,7 +266,7 @@ const ElementsContextProvider = ({ children }) => {
             let ind = findIndexOfUID(UID);
             outp[ind] = {...outp[ind], 
                 _privateStyles: action === "end" ? {} : {
-                    outline: "1px dashed var(--accent)"
+                    outline: "2px dashed var(--accent)"
                 }}
             return outp;
         })
@@ -390,7 +393,7 @@ const ElementsContextProvider = ({ children }) => {
             let ind = findIndexOfUID(UID.split('_')[0]);
             let sind = outp[ind].subcomponents.findIndex(obj => obj._id === UID);
             outp[ind].subcomponents[sind]._privateStyles = action === "end" ? {} : {
-                outline: "1px dashed yellow"
+                outline: "2px dashed yellow"
             }
             return outp;
         })
@@ -406,14 +409,24 @@ const ElementsContextProvider = ({ children }) => {
         })
     }
 
+    const findIndexOfSubcomponent = (UID) => {
+        let cind = components.findIndex(obj => obj._id === extractFrameID(UID));
+        return components[cind].subcomponents.findIndex(obj => obj._id === UID);
+    }
+
     return (
         <ElementsContext.Provider 
             value={{
                 components: {
+                    _scaling: {
+                        value: _scaling,
+                        set: _setScaling
+                    },
                     selected: {
                         value: selected,
                         select: selectComponent
                     },
+                    getIndexOf: findIndexOfUID,
                     value: components,
                     set: setComponents,
                     add: addComponent,
@@ -427,7 +440,7 @@ const ElementsContextProvider = ({ children }) => {
                     
                 },
                 subcomponents: {
-                    find: () => {},
+                    getIndexOf: findIndexOfSubcomponent,
                     selected: {
                         value: selectedSubcomponent,
                         select: selectSubcomponent

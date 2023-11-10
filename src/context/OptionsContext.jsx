@@ -12,11 +12,37 @@ const OptionsContextProvider = ({ children }) => {
     const [currentTool, setCurrentTool] = React.useState('pointer');
     const [options, setOptions] = React.useState(({
         snaplines: true,
-        borders: true
+        borders: true,
+        outlines: false,
+        rulers: true
     }))
 
     useEffect(() => {
-    }, []);
+        const keydownParser = (event) => {
+            const key = event.key.toUpperCase();
+
+            switch (key) {
+                case 'Q':
+                    setCurrentTool('pointer');
+                    break;
+                case 'W':
+                    setCurrentTool('drag');
+                    break;
+                case 'E':
+                    setCurrentTool('scale');
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        window.addEventListener('keypress', keydownParser);
+
+        return () => {
+            window.removeEventListener('keypress', keydownParser);
+        }
+    }, [])
+
 
     return (
         <OptionsContext.Provider 

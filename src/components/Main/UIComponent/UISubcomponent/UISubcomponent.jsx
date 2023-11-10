@@ -14,9 +14,9 @@ const CREATE_STYLES = {
         zIndex: '150'
     }),
 
-    debug: () => ({ boxSizing: 'border-box', border: '1px solid orange' }),
+    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', border: '1px solid orange' }) : ({}),
 
-    selected: (isSelected) => isSelected ? {outline: `1px dashed magenta`, zIndex: "10000"} : {},
+    selected: (isSelected) => isSelected ? {outline: `2px dashed magenta`, zIndex: "10000"} : {},
 
     cursor: (tool) => {
         switch (tool) {
@@ -33,7 +33,7 @@ const CREATE_STYLES = {
 }
 
 
-const SNAPLINING_OFFSET = 1.5;
+const SNAPLINING_OFFSET = 2;
 export default function UISubcomponent(props) {
     const {subcomponents, snaplines} = React.useContext(ElementsContext);
     const {tool, options} = React.useContext(OptionsContext);
@@ -113,7 +113,7 @@ export default function UISubcomponent(props) {
         <div 
             style={{
                 ...CREATE_STYLES.position(props.component),
-                ...CREATE_STYLES.debug(),
+                ...CREATE_STYLES.debug(options.value.outlines),
                 ...props.component._privateStyles,
                 ...CREATE_STYLES.selected(subcomponents.selected.value === props.component._id),
             }}

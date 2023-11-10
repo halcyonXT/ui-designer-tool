@@ -1,5 +1,5 @@
 .-main {
-    width: 100%;
+    flex: 1;
     box-sizing: border-box;
 
     height: calc(100% - 5vmax);
@@ -19,7 +19,8 @@
 }
 
 .-main-display {
-    height: 70vmin;
+    width: 92%;
+    max-height: 95% !important;
     aspect-ratio: 862 / 485 !important;
     max-width: 100% !important;
     background: #000;
@@ -70,3 +71,96 @@
     box-sizing: border-box;
     background-image: repeating-linear-gradient( -45deg, var(--accent), var(--accent) 0.45vmax, #e5e5f700 0.45vmax, #e5e5f700 1vmax );
 }
+
+.-RULER-HORIZONTAL-1 {
+    width: 100%;
+    top: -0.4vmax;
+    height: 0.4vmax;
+    position: absolute;
+    background-image: repeating-linear-gradient(to right, transparent 0%, transparent calc(1% - 2px), var(--dark) calc(1% - 2px), var(--dark) 1%);
+}
+
+.-RULER-HORIZONTAL-5 {
+    width: 100%;
+    top: -1.0vmax;
+    height: 1.0vmax;
+    position: absolute;
+    background-image: repeating-linear-gradient(to right, transparent 0%, transparent calc(5% - 2px), var(--dark) calc(5% - 2px), var(--dark) 5%);
+}
+
+.-RULER-POINTER-X {
+    width: 2px;
+    background-color: var(--accent);
+    height: 100%;
+    position: absolute;
+    top:0;
+    margin-left: -1px;
+}
+
+.-RULER-VERTICAL-1 {
+    height: 100%;
+    left: -0.4vmax;
+    width: 0.4vmax;
+    position: absolute;
+    background-image: repeating-linear-gradient(to bottom, transparent 0%, transparent calc(1% - 2px), var(--dark) calc(1% - 2px), var(--dark) 1%);
+}
+
+.-RULER-VERTICAL-5 {
+    height: 100%;
+    left: -1.0vmax;
+    width: 1.0vmax;
+    position: absolute;
+    background-image: repeating-linear-gradient(to bottom, transparent 0%, transparent calc(5% - 2px), var(--dark) calc(5% - 2px), var(--dark) 5%);
+}
+
+.-RULER-POINTER-Y {
+    height: 2px;
+    background-color: var(--accent);
+    width: 100%;
+    position: absolute;
+    left:0;
+    margin-top: -2px;
+}
+
+.-RULER-HORIZONTAL-MARKINGS {
+    width: 5%;
+    top: -12%;
+    height: 110%;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--dark);
+    position: absolute;
+    text-align: right;
+    font-size: 0.5vmax;
+    font-weight: 700;
+    margin: 0;
+	padding: 0;
+    box-sizing: border-box;
+    padding-right: 0.2vmax;
+    letter-spacing: 0.05vmax;
+}
+
+.-RULER-VERTICAL-MARKINGS {
+    height: 5%;
+    left: -62%;
+    width: 50%;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--dark);
+    position: absolute;
+    text-align: right;
+    font-size: 0.5vmax;
+    font-weight: 700;
+    margin: 0;
+	padding: 0;
+    box-sizing: border-box;
+    padding-right: 0.2vmax;
+    letter-spacing: 0.05vmax;
+}
+
+#main > div.-RULER-VERTICAL-5 > div:nth-child(1) {
+    left: -25% !important;
+}
+
+#main > div.-RULER-VERTICAL-5 > div:nth-child(20) {
+    left: -100% !important;
+}
+

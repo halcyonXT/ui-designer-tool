@@ -139,6 +139,12 @@
 	margin-right: 1.5vmax;
 }
 
+.-navbar-whitespace {
+	background: transparent;
+	height: 100%;
+	width: 1.5vmax;
+}
+
 .-navbar-button-shortcut-overlay {
 	font-family: 'IBM Plex Mono', monospace;
 	font-size: 0.4vmax;
@@ -150,6 +156,7 @@
 	width: 100%;
 	color: var(--subnonaccent);
 	font-weight: 700;
+
 }
 
 /* BELOW IS RANGE SLIDER CODE DONT TOUCH */
