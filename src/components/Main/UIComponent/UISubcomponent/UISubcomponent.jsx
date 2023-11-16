@@ -11,12 +11,11 @@ const CREATE_STYLES = {
         top: component.position.y + "%",
         width: component.position.width + "%",
         height: component.position.height + "%",
-        zIndex: '150'
     }),
 
-    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', border: '1px solid orange' }) : ({}),
+    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', border: '1px solid var(--complement)' }) : ({}),
 
-    selected: (isSelected) => isSelected ? {outline: `2px dashed magenta`, zIndex: "10000"} : {},
+    selected: (isSelected) => isSelected ? {outline: `2px dashed var(--complement)`, zIndex: "10000"} : {},
 
     cursor: (tool) => {
         switch (tool) {
@@ -29,6 +28,7 @@ const CREATE_STYLES = {
         }
     },
 
+    zIndex: (z) => ({zIndex: `${100 + z}`})
     
 }
 
@@ -116,6 +116,7 @@ export default function UISubcomponent(props) {
                 ...CREATE_STYLES.debug(options.value.outlines),
                 ...props.component._privateStyles,
                 ...CREATE_STYLES.selected(subcomponents.selected.value === props.component._id),
+                ...CREATE_STYLES.zIndex(props.zIndex)
             }}
             onMouseDown={handleMouseDown}
             onMouseEnter={() => subcomponents.hover.start(props.component._id)}

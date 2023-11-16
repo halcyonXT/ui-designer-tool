@@ -16,7 +16,7 @@ const CREATE_STYLES = {
         height: component.position.height + "%",
     }),
 
-    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', border: '1px solid red' }) : ({}),
+    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', border: '1px solid var(--accent)' }) : ({}),
 
     selected: (isSelected) => isSelected ? {outline: `2px dashed #6dffff`, zIndex: "100"} : {},
 
@@ -192,11 +192,12 @@ export default function UIComponent(props) {
                         // If the component hasnt been collapsed, render all subcomponents
                         !props.component._componentCollapsed 
                         &&
-                        props.component.subcomponents.map(item => 
+                        props.component.subcomponents.map((item, index) => 
                             <UISubcomponent 
                                 key={item._id}
                                 parentRef={componentRef}
                                 component={item}
+                                zIndex={index * 100}
                                 parentDragActive={dragActiveRef.current}
                                 controlSnaplines={{activate: activateSnapline, deactivate: deactivateSnapline, empty: emptySnaplines}}
                             />

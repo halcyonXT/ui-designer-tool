@@ -49,17 +49,19 @@ export default function RulerPointer(props) {
 
             setAuxillaries(aux)*/
         } else if (components.selected.value !== null) {
-            let cind = components.value.findIndex(obj => obj._id === components.selected.value);
-
-            let ref = components.value[cind].position;
-
-            let aux = props.direction === "x" 
-                ? 
-                [ref.x, (ref.x + (ref.x + ref.width)) / 2, ref.x + ref.width] 
-                : 
-                [ref.y, (ref.y + (ref.y + ref.height)) / 2, ref.y + ref.height];
-
-            setAuxillaries(aux);
+            try {
+                let cind = components.value.findIndex(obj => obj._id === components.selected.value);
+    
+                let ref = components.value[cind].position;
+    
+                let aux = props.direction === "x" 
+                    ? 
+                    [ref.x, (ref.x + (ref.x + ref.width)) / 2, ref.x + ref.width] 
+                    : 
+                    [ref.y, (ref.y + (ref.y + ref.height)) / 2, ref.y + ref.height];
+    
+                setAuxillaries(aux);
+            } catch (ex) {console.warn("Failed to render auxillary ruler pointers")}
         } else {
             setAuxillaries([null, null, null])
         }

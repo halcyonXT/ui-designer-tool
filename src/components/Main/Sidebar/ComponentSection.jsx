@@ -53,20 +53,20 @@ export const ComponentsSectionItem = (props) => {
                 </div>
                 <div className='-sidebar-component-icons-wrapper'>
                     {
-                        ((hovered || props.selected))
-                        &&
-                        <IconAction x={addSubcomponent}>
-                            {
-                                ICONS.add
-                            }
-                        </IconAction>
-                    }
-                    {
-                        (hovered || props.selected)
+                        (props.selected)
                         &&
                         <IconAction x={props.delete}>
                             {
                                 ICONS.delete
+                            }
+                        </IconAction>
+                    }
+                    {
+                        ((props.selected) || hovered)
+                        &&
+                        <IconAction x={addSubcomponent}>
+                            {
+                                ICONS.add
                             }
                         </IconAction>
                     }
@@ -122,7 +122,7 @@ export const Subcomponent = (props) => {
                     </div>
                     <div className='-sidebar-component-icons-wrapper'>
                         {
-                            (hovered || props.selected)
+                            ((subcomponents.selected.value === props.item._id))
                             &&
                             <IconAction x={deleteSubcomponent}>
                                 {

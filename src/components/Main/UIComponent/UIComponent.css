@@ -21,8 +21,18 @@
     background: var(--foreground);
     box-sizing: border-box;
     border-radius: 9999px;
-    border: 1px solid var(--nonaccent);
+    border: 2px solid var(--nonaccent);
+    transition-duration: 75ms;
 }
+
+.-SCALE-NOTCH:hover {
+    /* ################################### TO - DO ############################################### */
+}
+
+
+/* CSS */
+
+
 
 .-SCALE-NOTCH-TOP {
     top: calc(0% - (var(--notch-size) / 2));

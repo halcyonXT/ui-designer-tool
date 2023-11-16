@@ -72,7 +72,7 @@ const ElementsContextProvider = ({ children }) => {
                 _id: newUID,
                 _privateStyles: {},
                 type: 'box',
-                id: `Component_${rel.length + 1}`,
+                id: `Subcomponent_${rel.length + 1}`,
                 position: {
                     x: 0,
                     y: 0,
@@ -256,6 +256,14 @@ const ElementsContextProvider = ({ children }) => {
             return outp;
         })
 
+        if (components[ind].subcomponents.findIndex(obj => obj._id === selectedSubcomponent) !== -1) {
+            setSelectedSubcomponent(null);
+        }
+
+        if (selected === UID) {
+            setSelected(null);
+        }
+
         setComponents(prev => removeIndexFromArray(prev, ind));
     }
 
@@ -414,9 +422,20 @@ const ElementsContextProvider = ({ children }) => {
         return components[cind].subcomponents.findIndex(obj => obj._id === UID);
     }
 
+    let triggerModule = () => {};
+    const _setTriggerModule = (func) => {
+        triggerModule = func;
+    } 
+
     return (
         <ElementsContext.Provider 
             value={{
+                other: {
+                    modal: {
+                        trigger: triggerModule,
+                        _set: _setTriggerModule
+                    }
+                },
                 components: {
                     _scaling: {
                         value: _scaling,

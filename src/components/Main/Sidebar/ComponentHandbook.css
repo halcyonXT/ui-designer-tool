@@ -1,0 +1,121 @@
+.-handbook-wrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.-handbook-tabs {
+    box-sizing: border-box;
+    height: 3vmax;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.2vmax;
+}
+
+.-handbook-tab-row {
+    box-sizing: border-box;
+    padding: 0.1vmax;
+    height: 48%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.-handbook-tab {
+    width: 49%;
+    height: 100%;
+    background: var(--dark);
+    transition-duration: 75ms;
+    border-radius: 0.1vmax;
+    cursor: pointer;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 0.7vmax;
+    text-align: center;
+    color: var(--htmlbackground);
+    display: grid;
+    place-items: center;
+}
+
+.-handbook-tab:hover {
+    background: var(--subnonaccent);
+}
+
+.-handbook-tab.selected {
+    background: var(--nonaccent);
+}
+
+.-handbook-text {
+    height: calc(100% - 3.4vmax);
+    width: calc(100% - 0.8vmax);
+    max-width: calc(100% - 0.8vmax);
+    overflow-x: hidden;
+    margin: 0.2vmax 0.4vmax 0.2vmax 0.4vmax;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.-handbook-paragraph {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-size: 0.8vmax;
+    color: var(--nonaccent);
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.005vmax;
+    user-select:text;
+}
+
+.-handbook-text > code {
+    box-sizing: content-box;
+    padding: 0.01vmax;
+    font-family: 'IBM Plex Mono', monospace !important;
+}
+
+pre.language-js {
+    padding: 0 0.3vmax 0 0.3vmax !important;
+    width: 94.1%;
+    border-radius: 0.2vmax;
+    line-height: 0.8 !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+}
+
+.-handbook-code {
+    text-shadow: none !important;
+    font-size: 0.53vmax !important;
+    user-select: text !important;
+}
+
+.-handbook-code > span {
+    user-select: text !important;
+}
+
+.token.operator, .token.operator.equal {
+    background: transparent !important;
+    /* Add any other styling properties as needed */
+}
+
+.listing-summary {
+    font-family: 'IBM Plex Mono', monospace;
+    width: 85%;
+    margin-left: 2vmax;
+}
+
+.listing-summary > p {
+    color: var(--subnonaccent);
+    font-size: 0.6vmax;
+    font-family: 'Roboto Condensed', sans-serif;
+    padding: 0.3vmax 0 0.3vmax 0;
+    margin: 0.15vmax 0 0.15vmax 0;
+    box-sizing: content-box;
+    border-top: 1px solid var(--dark);
+    border-bottom: 1px solid var(--dark);
+}
+
+.listing-summary > summary {
+    cursor: pointer !important;
+}

@@ -6,12 +6,10 @@ import Sidebar from './Sidebar/Sidebar'
 import { ElementsContext } from '../../context/ElementsContext'
 import UIComponent from './UIComponent/UIComponent'
 import RulerPointer from './RulerPointer'
-import { mouseCoordinates } from './rulerPointerCoords'
 
 
 const EMPTY_SNAPLINE = () => ({element: ""});
 
-let clickCounter = 0;
 
 const createRulerMarkings = (direction) => {
     let outp = [];
@@ -29,11 +27,14 @@ const VERTICAL_RULER_MARKINGS = createRulerMarkings("y");
 
 export default function Main() {
     const {overlayOpacity, options} = React.useContext(OptionsContext);
-    const {components} = React.useContext(ElementsContext);
+    const {components, subcomponents, snaplines} = React.useContext(ElementsContext);
 
     const [activeSnaplines, setActiveSnaplines] = React.useState({x: EMPTY_SNAPLINE(), y: EMPTY_SNAPLINE()});
 
 
+    console.log(components)
+    console.log(subcomponents)
+    console.log(snaplines)
     
 
     const mainRef = React.useRef(null);

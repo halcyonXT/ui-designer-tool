@@ -16,11 +16,13 @@ body, html {
 }
 
 :root {
+  --subhtmlbackground: #090b0c;
   --htmlbackground: #0e1113;
   --background: #15191c;
   --foreground: #20262b;
   --shadow: #0a0c0e;
-  --accent: rgb(61, 255, 164);
+  --accent: #3dffa4;
+  --complement: #ff3d98;
   --subaccent: rgb(82, 146, 115);
   --nonaccent: #e4e7eb;
   --subnonaccent: #626c75;
