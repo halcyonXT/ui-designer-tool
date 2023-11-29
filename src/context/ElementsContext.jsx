@@ -27,10 +27,15 @@ const extractFrameID = (str) => str.split("_")[0];
 const viewportCenterSnapline = () => ({
     center: {x: 50, y: 50},
     auxillary: {
-        horizontal: [-100, -100],
-        vertical: [-100, -100]
+        horizontal: [-Infinity, -Infinity],
+        vertical: [-Infinity, -Infinity]
     }
 });
+
+
+// ! IMPORTANT
+// TODO: - Split up ElementsContext into multiple contexts
+// TODO: - Document this code
 
 const ElementsContextProvider = ({ children }) => {
     const [selected, setSelected] = React.useState(null);
@@ -51,7 +56,7 @@ const ElementsContextProvider = ({ children }) => {
 
 
     const clamp = (min, val, max) => {
-        if (!options.value.borders) return val;
+        if (!options.value.borders) return Number(val);
         return Math.max(min, Math.min(val, max));
     }
 
@@ -105,8 +110,8 @@ const ElementsContextProvider = ({ children }) => {
     }
 
     const updateSubcomponentSnapline = (id) => {
-        // NEVER remove this timeout. Due to render-time reasons, upon multiple components moves snaplines are off by a few pixles
-        // unless calculating snaplines is timed out
+        // ! NEVER remove this timeout. Due to render-time reasons, upon multiple components moves snaplines are off by a few pixles
+        // ! unless calculating snaplines is timed out
         setTimeout(() => {
             setSubcomponentSnaplines(prev => {
                 let outp = {...prev};
@@ -193,8 +198,8 @@ const ElementsContextProvider = ({ children }) => {
     }
 
     const updateSnapline = (id, type) => {
-        // NEVER remove this timeout. Due to render-time reasons, upon multiple components moves snaplines are off by a few pixles
-        // unless calculating snaplines is timed out
+        // ! NEVER remove this timeout. Due to render-time reasons, upon multiple components moves snaplines are off by a few pixles
+        // ! unless calculating snaplines is timed out
         if (type === "frame") {
             setTimeout(() => {
                 setSnaplines(prev => {
@@ -257,11 +262,18 @@ const ElementsContextProvider = ({ children }) => {
         })
 
         if (components[ind].subcomponents.findIndex(obj => obj._id === selectedSubcomponent) !== -1) {
-            setSelectedSubcomponent(null);
+            setTimeout(() => {
+                setSelectedSubcomponent(null);
+            }, 10)
         }
 
         if (selected === UID) {
-            setSelected(null);
+            if (selectedSubcomponent && selectedSubcomponent.split('_')[0] === UID) {
+                setSelectedSubcomponent(null);
+            }
+            setTimeout(() => {
+                setSelected(null);
+            }, 10)
         }
 
         setComponents(prev => removeIndexFromArray(prev, ind));
@@ -304,33 +316,80 @@ const ElementsContextProvider = ({ children }) => {
     }
 
     /**
+     * Returns null if resize is rejected, otherwise returns appropriate values
+     * @param {Object} options 
+     * @param {Object} ref 
+     * @returns 
+     */
+    const getNewSize = (options, ref) => {
+        try {
+            switch (options.direction) {
+                case "top":
+                        return (() => {
+                            let newy = clamp(0, options.value, 100);
+                            if (newy === 0) return null;
+                            let newheight = clamp(0.1, ref.position.height + (ref.position.y - options.value), 100);
+                            if (newheight === 0.1) return null;
+                            return {
+                                y: newy,
+                                height: newheight
+                            }
+                        })();
+                    case "bottom":
+                        return (() => {
+                            let newy = ref.position.y;
+                            let newheight = options.value - ref.position.y;
+                            newheight = clamp(0.1, newheight, 100 - newy);
+                            return {
+                                height: newheight
+                            }
+                        })();
+                    case "left":
+                        return (() => {
+                            let newx = clamp(0, options.value, 100);
+                            if (newx === 0) return null;
+                            let newwidth = clamp(0.1, ref.position.width + (ref.position.x - options.value), 100);
+                            if (newwidth === 0.1) return null;
+                            return {
+                                x: newx,
+                                width: newwidth
+                            }
+                        })();
+                    case "right":
+                        return (() => {
+                            let newx = ref.position.x;
+                            let newwidth = options.value - ref.position.x;
+                            newwidth = clamp(0.1, newwidth, 100 - newx);
+                            return {
+                                width: newwidth
+                            }
+                        })();
+            }
+        } catch (ex) {
+            console.warn("Resize failed: " + ex);
+            return null;
+        }
+    }
+
+    /**
      * Used for the scale tool. Might be the worst function I have ever written
      * @param {String} UID - Unique ID of UI component 
      * @param {Object} options - "direction" key - ("top", "bottom", "left", "right") ; "value" key - Of type Number, represents new position in percents 
      */
     const updateComponentSize = (UID, options) => {
         let ind = findIndexOfUID(UID);
-        /*if (!_lastRememberedScaleDimension) {
-            let dimension;
-            switch (options.direction) {
-                case "top":
-                    break
-            }
-        }*/
         switch (options.direction) {
             case "top":
                 setComponents(prev => {
                     let outp = [...prev];
-                    let newy = clamp(0, options.value, 100);
-                    if (newy === 0) return outp;
-                    let newheight = clamp(0.1, outp[ind].position.height + (outp[ind].position.y - options.value), 100);
-                    if (newheight === 0.1) return outp;
+                    let newsize = getNewSize(options, outp[ind])
+                    if (!newsize) return outp;
                     outp[ind] = {
                         ...outp[ind], 
                         position: {
                             ...outp[ind].position,
-                            y: newy,
-                            height: newheight
+                            y: newsize.y,
+                            height: newsize.height
                         }
                     }
                     return outp;
@@ -339,16 +398,13 @@ const ElementsContextProvider = ({ children }) => {
             case "bottom":
                 setComponents(prev => {
                     let outp = [...prev];
-                    let newy = outp[ind].position.y;
-                    let newheight = options.value - outp[ind].position.y;
-                    newheight = clamp(0.1, newheight, 100 - newy);
-
+                    let newsize = getNewSize(options, outp[ind]); 
+                    if (!newsize) return outp;                   
                     outp[ind] = {
                         ...outp[ind], 
                         position: {
                             ...outp[ind].position,
-                            y: newy,
-                            height: newheight
+                            height: newsize.height
                         }
                     }
                     return outp;
@@ -357,16 +413,14 @@ const ElementsContextProvider = ({ children }) => {
             case "left":
                 setComponents(prev => {
                     let outp = [...prev];
-                    let newx = clamp(0, options.value, 100);
-                    if (newx === 0) return outp;
-                    let newwidth = clamp(0.1, outp[ind].position.width + (outp[ind].position.x - options.value), 100);
-                    if (newwidth === 0.1) return outp;
+                    let newsize = getNewSize(options, outp[ind]);
+                    if (!newsize) return outp;
                     outp[ind] = {
                         ...outp[ind], 
                         position: {
                             ...outp[ind].position,
-                            x: newx,
-                            width: newwidth
+                            x: newsize.x,
+                            width: newsize.width
                         }
                     }
                     return outp;
@@ -375,16 +429,91 @@ const ElementsContextProvider = ({ children }) => {
             case "right":
                 setComponents(prev => {
                     let outp = [...prev];
-                    let newx = outp[ind].position.x;
-                    let newwidth = options.value - outp[ind].position.x;
-                    newwidth = clamp(0.1, newwidth, 100 - newx);
-
+                    let newsize = getNewSize(options, outp[ind]);
+                    if (!newsize) return outp;
                     outp[ind] = {
                         ...outp[ind], 
                         position: {
                             ...outp[ind].position,
-                            x: newx,
-                            width: newwidth
+                            width: newsize.width
+                        }
+                    }
+                    return outp;
+                })
+                break
+        }
+    }
+
+    /**
+     * "Don't repeat yourself"? What's that? Never heard of it
+     * @param {String} UID - Unique ID of UI component 
+     * @param {Object} options - "direction" key - ("top", "bottom", "left", "right") ; "value" key - Of type Number, represents new position in percents 
+     */
+    const updateSubcomponentSize = (UID, options) => {
+        let cind = findIndexOfUID(extractFrameID(UID));
+        let sind = findIndexOfSubcomponent(UID);
+        switch (options.direction) {
+            case "top":
+                setComponents(prev => {
+                    let outp = [...prev];
+                    let newsize = getNewSize(options, outp[cind].subcomponents[sind]);
+                    if (!newsize) return outp;
+
+                    outp[cind].subcomponents[sind] = {
+                        ...outp[cind].subcomponents[sind], 
+                        position: {
+                            ...outp[cind].subcomponents[sind].position,
+                            y: newsize.y,
+                            height: newsize.height
+                        }
+                    }
+                    return outp;
+                })
+                break
+            case "bottom":
+                setComponents(prev => {
+                    let outp = [...prev];
+                    let newsize = getNewSize(options, outp[cind].subcomponents[sind]);
+                    if (!newsize) return outp;
+
+                    outp[cind].subcomponents[sind] = {
+                        ...outp[cind].subcomponents[sind], 
+                        position: {
+                            ...outp[cind].subcomponents[sind].position,
+                            height: newsize.height
+                        }
+                    }
+                    return outp;
+                })
+                break
+            case "left":
+                setComponents(prev => {
+                    let outp = [...prev];
+                    let newsize = getNewSize(options, outp[cind].subcomponents[sind]);
+                    if (!newsize) return outp;
+
+                    outp[cind].subcomponents[sind] = {
+                        ...outp[cind].subcomponents[sind], 
+                        position: {
+                            ...outp[cind].subcomponents[sind].position,
+                            x: newsize.x,
+                            width: newsize.width
+                        }
+                    }
+                    return outp;
+                })
+                break
+            case "right":
+                setComponents(prev => {
+                    let outp = [...prev];
+                    let newsize = getNewSize(options, outp[cind].subcomponents[sind]);
+                    if (!newsize) return outp;
+
+                    outp[cind].subcomponents[sind] = {
+                        ...outp[cind].subcomponents[sind], 
+                        position: {
+                            ...outp[cind].subcomponents[sind].position,
+                            width: newsize.width
                         }
                     }
                     return outp;
@@ -408,6 +537,16 @@ const ElementsContextProvider = ({ children }) => {
     }
 
     const removeSubcomponent = (UID) => {
+        if (selectedSubcomponent === UID) {
+            setSelectedSubcomponent(null);
+        }
+
+        setSubcomponentSnaplines(prev => {
+            let outp = {...prev};
+            delete outp[UID];
+            return outp;
+        })
+
         setComponents(prev => {
             let outp = [...prev];
             let cind = findIndexOfUID(UID.split('_')[0]);
@@ -424,6 +563,9 @@ const ElementsContextProvider = ({ children }) => {
 
     let triggerModule = () => {};
     const _setTriggerModule = (func) => {
+        if (typeof func !== 'function') {
+            console.error("_setTriggerModule didn't recieve a function: " + func)
+        }
         triggerModule = func;
     } 
 
@@ -467,6 +609,7 @@ const ElementsContextProvider = ({ children }) => {
                     add: addSubcomponent,
                     remove: removeSubcomponent,
                     updatePos: updateSubcomponentPosition,
+                    updateSize: updateSubcomponentSize,
                     hover: {
                         start: (UID) => hoverSubcomponentApplyStyles("start", UID),
                         end: (UID) => hoverSubcomponentApplyStyles("end", UID)

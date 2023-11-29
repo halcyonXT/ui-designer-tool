@@ -2,6 +2,7 @@ import React from 'react'
 import './UISubcomponent.css'
 import { ElementsContext } from '../../../../context/ElementsContext';
 import { OptionsContext } from '../../../../context/OptionsContext';
+import ScaleToolOverlaySC from './ScaleToolOverlaySC';
 
 const CREATE_STYLES = {
 
@@ -125,7 +126,18 @@ export default function UISubcomponent(props) {
             onClick={() => subcomponents.selected.select(props.component._id)}
             className='-SUBCOMPONENT'
         >
-
+            {
+                // If the current selected component is this component (checked using ids) and the current tool is scale, render ScaleToolOverlay
+                // and if the subcomponent selected value is null
+                props.component._id === subcomponents.selected.value 
+                && 
+                tool.value === 'scale'
+                &&
+                <ScaleToolOverlaySC 
+                    parentRef={props.parentRef} 
+                    controlSnaplines={props.controlSnaplines} 
+                    component={props.component} />
+            }
         </div>
     )
 }

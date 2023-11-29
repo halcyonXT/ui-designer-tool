@@ -333,11 +333,36 @@
     border: 0;
     width: 100%;
     height: 100%;
-    color: var(--nonaccent);
+    color: transparent;
     font-family: 'Roboto Condensed', sans-serif;
-    font-size: 1.2vmax;
+    font-size: 0vmax;
     padding: 0 0.3vmax 0 0.3vmax;
     border-radius: 0.25vmax;
+}
+
+.-sidebar-details-position-input-text {
+    background: transparent;
+    outline: 0;
+    box-sizing: border-box;
+    border: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--nonaccent);
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 1.3vmax;
+    padding: 0 0.3vmax 0 0.3vmax;
+    border-radius: 0.25vmax;
+    pointer-events: none;
+    position: absolute;
+    display: flex;
+    align-items: center;
+}
+
+.-small {
+    color: var(--subnonaccent);
+    font-size: 0.9vmax;
+    margin-left: 0.2vmax;
+    font-weight: 400;
 }
 
 .-sidebar-details-position-input-title {
@@ -347,7 +372,7 @@
     top: -0.1vmax;
     right: 0;
     font-family: 'Roboto Condensed', sans-serif;
-    color: var(--nonaccent);
+    color: var(--subnonaccent);
     font-size: 0.7vmax;
     font-weight: 600;
     box-sizing: content-box;
@@ -355,6 +380,57 @@
     padding-right: 0.37vmax;
     padding-bottom: 0.1vmax;
     background: linear-gradient(60deg, transparent 0.4vmax, var(--background) 0.46vmax);
+}
+
+.-sidebar-details-type-section-wrapper {
+    height: 3.5vmax;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    box-sizing: border-box;
+    margin-top: 0vmax;
+    margin-bottom: 0.5vmax;
+}
+
+.-sidebar-details-type-title {
+    color: var(--subnonaccent);
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.8vmax;
+    margin-top: 0.35vmax;
+    text-align: left;
+}
+
+.-sidebar-details-type-wrapper {
+    box-sizing: border-box;
+    height: 50%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.-sidebar-details-type {
+    --border-radius: 999px;
+    height: 100%;
+    width: 32.5%;
+	fill: var(--background);
+    background: var(--htmlbackground);
+	display: grid;
+	place-items: center;
+	transition-duration: 75ms;
+	position: relative;
+}
+
+.-sidebar-details-type:first-of-type {
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+}
+
+.-sidebar-details-type:last-of-type {
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
 }
 
 /*

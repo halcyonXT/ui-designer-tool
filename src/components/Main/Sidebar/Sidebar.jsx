@@ -49,7 +49,8 @@ const EMPTY_INPUT_POSITION = () => ({
     width: null,
     height: null,
 });
-export default React.memo(function Sidebar() {
+
+export default function Sidebar() {
     const { components, subcomponents } = React.useContext(ElementsContext);
     const [inputPosition, setInputPosition] = React.useState(
         EMPTY_INPUT_POSITION()
@@ -94,20 +95,29 @@ export default React.memo(function Sidebar() {
      * Used to track current selected (prioritize subcomponent)
      */
     const renewInputPosition = () => {
-        let { value: sUID } = subcomponents.selected;
-        let { value: cUID } = components.selected;
+        try {
+            let { value: sUID } = subcomponents.selected;
+            let { value: cUID } = components.selected;
+    
+            if (!sUID && !cUID) {
+                setInputPosition(EMPTY_INPUT_POSITION());
+                return;
+            }
 
-        if (!sUID && !cUID) {
+    
+            if (sUID) {
+                let cind = components.getIndexOf(sUID.split("_")[0]);
+                let sind = subcomponents.getIndexOf(sUID);
+                setInputPosition({
+                    ...components.value[cind].subcomponents[sind].position,
+                });
+            } else {
+                setInputPosition({
+                    ...components.value[components.getIndexOf(cUID)].position,
+                });
+            }
+        } catch (ex) {
             setInputPosition(EMPTY_INPUT_POSITION());
-            return;
-        }
-
-        if (sUID) {
-            let cind = components.getIndexOf(sUID.split("_")[0]);
-            let sind = subcomponents.getIndexOf(sUID);
-            setInputPosition({...components.value[cind].subcomponents[sind].position});
-        } else {
-            setInputPosition({...components.value[components.getIndexOf(cUID)].position});
         }
     };
 
@@ -131,7 +141,9 @@ export default React.memo(function Sidebar() {
         renewInputPosition();
     }, [components, subcomponents]);
 
+    // TODO:
     const exportCodeButtonPress = () => { };
+
     return (
         <div className="-sidebar">
             <div className="-sidebar-elements-wrapper">
@@ -142,10 +154,10 @@ export default React.memo(function Sidebar() {
                             onClick={openComponentHandbook}
                             className="-sidebar-section-toolbox-tool"
                             style={
-                                isComponentHandbookOpen ? { fill: "var(--nonaccent)" } : {}
+                                isComponentHandbookOpen ? { fill: "var(--accent)" } : {}
                             }
                         >
-                            <div style={{ height: "1vmax", aspectRatio: "1/1" }}>
+                            <div style={{ height: "1vmax", aspectRatio: "1/1", display: 'grid', placeItems: 'center' }}>
                                 {ICONS.help}
                             </div>
                         </div>
@@ -217,13 +229,23 @@ export default React.memo(function Sidebar() {
                                     }
                                     parent={
                                         components.value[
-                                        components.getIndexOf(
-                                            subcomponents.selected.value.split("_")[0]
-                                        )
+                                            components.getIndexOf(
+                                                subcomponents.selected.value.split("_")[0]
+                                            )
                                         ]
                                     }
                                 />
                             )}
+                        </div>
+                        <div className="-sidebar-details-type-section-wrapper">
+                            <div className="-sidebar-details-type-title">
+                                Subcomponent type:
+                            </div>
+                            <div className="-sidebar-details-type-wrapper">
+                                <div className="-sidebar-details-type"></div>
+                                <div className="-sidebar-details-type"></div>
+                                <div className="-sidebar-details-type"></div>
+                            </div>
                         </div>
                         <div className="-sidebar-details-position-wrapper">
                             <div className="-sidebar-details-position-row">
@@ -232,22 +254,30 @@ export default React.memo(function Sidebar() {
                                         X
                                     </div>
                                     <input
-                                        value={inputPosition.x?.toFixed(2)}
+                                        value={inputPosition.x ? inputPosition.x?.toFixed(2) : "0"}
                                         type="text"
                                         className="-sidebar-details-position-input -position-input lightblue"
                                         spellCheck="false"
                                     />
+                                    <div className="-sidebar-details-position-input-text">
+                                        {inputPosition.x ? inputPosition.x?.toFixed(2) : "0"}
+                                        <span className="-small">%</span>
+                                    </div>
                                 </div>
                                 <div className="-sidebar-details-position-box">
                                     <div className="-sidebar-details-position-input-title -position-input lightcoral">
                                         Y
                                     </div>
                                     <input
-                                        value={inputPosition.y?.toFixed(2)}
+                                        value={inputPosition.y ? inputPosition.y?.toFixed(2) : "0"}
                                         type="text"
                                         className="-sidebar-details-position-input -position-input lightcoral"
                                         spellCheck="false"
                                     />
+                                    <div className="-sidebar-details-position-input-text">
+                                        {inputPosition.y ? inputPosition.y?.toFixed(2) : "0"}
+                                        <span className="-small">%</span>
+                                    </div>
                                 </div>
                             </div>
                             <div className="-sidebar-details-position-row">
@@ -261,6 +291,10 @@ export default React.memo(function Sidebar() {
                                         className="-sidebar-details-position-input -position-input lightgreen"
                                         spellCheck="false"
                                     />
+                                    <div className="-sidebar-details-position-input-text">
+                                        {inputPosition.width?.toFixed(2)}
+                                        <span className="-small">%</span>
+                                    </div>
                                 </div>
                                 <div className="-sidebar-details-position-box">
                                     <div className="-sidebar-details-position-input-title -position-input orchid">
@@ -272,6 +306,10 @@ export default React.memo(function Sidebar() {
                                         className="-sidebar-details-position-input -position-input orchid"
                                         spellCheck="false"
                                     />
+                                    <div className="-sidebar-details-position-input-text">
+                                        {inputPosition.height?.toFixed(2)}
+                                        <span className="-small">%</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -315,7 +353,7 @@ export default React.memo(function Sidebar() {
             }
         </div>
     );
-});
+};
 
 const FrameSelected = (props) => {
     if (!props.component) return <></>;

@@ -32,11 +32,6 @@ export default function Main() {
     const [activeSnaplines, setActiveSnaplines] = React.useState({x: EMPTY_SNAPLINE(), y: EMPTY_SNAPLINE()});
 
 
-    console.log(components)
-    console.log(subcomponents)
-    console.log(snaplines)
-    
-
     const mainRef = React.useRef(null);
 
     const activateSnapline = (direction, percentage) => {
@@ -95,15 +90,17 @@ export default function Main() {
                                 {
                                     HORIZONTAL_RULER_MARKINGS
                                 }
-                                <RulerPointer direction="x" />
+                                
                             </div>
+                            <RulerPointer direction="x" />
                             <div className='-RULER-VERTICAL-1'></div>
                             <div className='-RULER-VERTICAL-5'>
                                 {
                                     VERTICAL_RULER_MARKINGS
                                 }
-                                <RulerPointer direction="y" />
+                                
                             </div>
+                            <RulerPointer direction="y" />
                         </>
                     }
                     <img className='-main-display-game-overlay' style={{opacity: overlayOpacity.value/100}} src={GAME_OVERLAY} onDragStart={() => {}}/>

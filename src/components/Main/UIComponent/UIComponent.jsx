@@ -172,7 +172,12 @@ export default function UIComponent(props) {
             <>
                 {
                     // If the current selected component is this component (checked using ids) and the current tool is scale, render ScaleToolOverlay
-                    props.component._id === components.selected.value && tool.value === 'scale'
+                    // and if the subcomponent selected value is null
+                    props.component._id === components.selected.value 
+                    && 
+                    tool.value === 'scale'
+                    &&
+                    !subcomponents.selected.value
                     &&
                     <ScaleToolOverlay mainRef={props.mainRef} controlSnaplines={props.controlSnaplines} component={props.component} />
                 }

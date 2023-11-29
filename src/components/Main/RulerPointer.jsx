@@ -1,12 +1,28 @@
 import React from 'react'
 import { ElementsContext } from '../../context/ElementsContext';
 
+// TODO - IMPLEMENT THIS
+function calculateInnermostSize(middleWidthPercent, middleHeightPercent, innerWidthPercent, innerHeightPercent) {
+    let outerWidth = 100;
+    let outerHeight = 100;
+    // Calculate the size of the middle rectangle
+    const middleWidth = (middleWidthPercent / 100) * outerWidth;
+    const middleHeight = (middleHeightPercent / 100) * outerHeight;
 
+    // Calculate the size of the innermost rectangle
+    const innerWidth = (innerWidthPercent / 100) * middleWidth;
+    const innerHeight = (innerHeightPercent / 100) * middleHeight;
 
+    return { innerWidth, innerHeight };
+}
 
 export default function RulerPointer(props) {
     const [value, setValue] = React.useState(0);
     const [auxillaries, setAuxillaries] = React.useState([null, null, null]);
+    const [current, setCurrent] = React.useState({
+        isSubcomponent: false,
+        styles: {}
+    })
     const { components, subcomponents } = React.useContext(ElementsContext);
 
     React.useEffect(() => {
@@ -38,16 +54,36 @@ export default function RulerPointer(props) {
 
     React.useEffect(() => {
         if (subcomponents.selected.value !== null) {
-            /*let cind = components.value.findIndex(obj => obj._id === subcomponents.selected.value.split('_')[0]);
-            let sind = components.value[cind].subcomponents.findIndex(obj => obj._id === subcomponents.selected.value);
-            let ref = components.value[cind].subcomponents[sind].position;
-            let ref2 = components.value[cind].position;
-            let aux = props.direction === "x" ? 
-                [calculateInnermostLeft(100, Number(ref2.x), Number(ref.x)), calculateInnermostLeft(100, Number(ref2.x) + Number(ref2.width), Number(ref.x) + Number(ref.width))]
-                : 
-                [calculateInnermostLeft(100, Number(ref2.y), Number(ref.y)), calculateInnermostLeft(100, Number(ref2.y) + Number(ref2.height), Number(ref.y) + Number(ref.height))]
+            try {
+                let cind = components.getIndexOf(subcomponents.selected.value.split("_")[0]);
+                let sind = subcomponents.getIndexOf(subcomponents.selected.value);
+    
+                let ref = {...components.value[cind].subcomponents[sind].position};
+    
+                let aux = props.direction === "x" 
+                        ? 
+                        [ref.x, (ref.x + (ref.x + ref.width)) / 2, ref.x + ref.width] 
+                        : 
+                        [ref.y, (ref.y + (ref.y + ref.height)) / 2, ref.y + ref.height];
+    
+                setAuxillaries(aux);
 
-            setAuxillaries(aux)*/
+                setCurrent({
+                    isSubcomponent: true,
+                    styles: (() => {
+                        let outp = {};
+                        let newref = components.value[cind].position;
+                        if (props.direction === "x") {
+                            outp.left = newref.x + "%";
+                            outp.width = newref.width + "%";
+                        } else {
+                            outp.top = newref.y + "%";
+                            outp.height = newref.height + "%";
+                        }
+                        return outp;
+                    })(),
+                })
+            } catch (ex) {console.warn("Failed to render auxillary ruler pointers" + ex)}
         } else if (components.selected.value !== null) {
             try {
                 let cind = components.value.findIndex(obj => obj._id === components.selected.value);
@@ -61,6 +97,10 @@ export default function RulerPointer(props) {
                     [ref.y, (ref.y + (ref.y + ref.height)) / 2, ref.y + ref.height];
     
                 setAuxillaries(aux);
+                setCurrent({
+                    isSubcomponent: false,
+                    styles: {}
+                })
             } catch (ex) {console.warn("Failed to render auxillary ruler pointers")}
         } else {
             setAuxillaries([null, null, null])
@@ -69,28 +109,39 @@ export default function RulerPointer(props) {
 
     return (
         <>
-            {
-                auxillaries[0] !== null
-                &&
-                <>
-                    <div 
-                    style={{...(props.direction === "x" ? {left: `${auxillaries[0]}%`} : {top: `${auxillaries[0]}%`}), background: 'magenta'}} 
-                    className={props.direction === "x" ? "-RULER-POINTER-X" : "-RULER-POINTER-Y"}>
-                    </div>
-                    <div 
-                        style={{...(props.direction === "x" ? {left: `${auxillaries[1]}%`} : {top: `${auxillaries[1]}%`}), background: 'pink'}} 
-                        className={props.direction === "x" ? "-RULER-POINTER-X" : "-RULER-POINTER-Y"}>
-                    </div>
-                    <div 
-                        style={{...(props.direction === "x" ? {left: `${auxillaries[2]}%`} : {top: `${auxillaries[2]}%`}), background: 'magenta'}} 
-                        className={props.direction === "x" ? "-RULER-POINTER-X" : "-RULER-POINTER-Y"}>
-                    </div>
-                </>
-            }
-            
             <div 
-                style={props.direction === "x" ? {left: `${value}px`} : {top: `${value}px`}} 
-                className={props.direction === "x" ? "-RULER-POINTER-X" : "-RULER-POINTER-Y"}>
+                className={`-RULER-POINTER-${props.direction.toUpperCase()}-WRAPPER`}
+                style={
+                    current.isSubcomponent
+                    ?
+                    current.styles
+                    :
+                    {}
+                }
+            >
+                {
+                    auxillaries[0] !== null
+                    &&
+                    <>
+                        <div 
+                        style={{...(props.direction === "x" ? {left: `${auxillaries[0]}%`} : {top: `${auxillaries[0]}%`}), background: 'magenta'}} 
+                        className={props.direction === "x" ? "-RULER-POINTER-X" : "-RULER-POINTER-Y"}>
+                        </div>
+                        <div 
+                            style={{...(props.direction === "x" ? {left: `${auxillaries[1]}%`} : {top: `${auxillaries[1]}%`}), background: 'pink'}} 
+                            className={props.direction === "x" ? "-RULER-POINTER-X" : "-RULER-POINTER-Y"}>
+                        </div>
+                        <div 
+                            style={{...(props.direction === "x" ? {left: `${auxillaries[2]}%`} : {top: `${auxillaries[2]}%`}), background: 'magenta'}} 
+                            className={props.direction === "x" ? "-RULER-POINTER-X" : "-RULER-POINTER-Y"}>
+                        </div>
+                    </>
+                }
+                
+                <div 
+                    style={props.direction === "x" ? {left: `${value}px`} : {top: `${value}px`}} 
+                    className={props.direction === "x" ? "-RULER-POINTER-X" : "-RULER-POINTER-Y"}>
+                </div>
             </div>
         </>
     )
