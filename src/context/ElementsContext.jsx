@@ -19,6 +19,7 @@ let counter = 0;
 
 
 const removeIndexFromArray = (arr, index) => [...arr.slice(0, index), ...arr.slice(index + 1)];
+const extractFrameID = (str) => str.split("_")[0];
 
 
 
@@ -26,16 +27,22 @@ const removeIndexFromArray = (arr, index) => [...arr.slice(0, index), ...arr.sli
 const viewportCenterSnapline = () => ({
     center: {x: 50, y: 50},
     auxillary: {
-        horizontal: [-100, -100],
-        vertical: [-100, -100]
+        horizontal: [-Infinity, -Infinity],
+        vertical: [-Infinity, -Infinity]
     }
 });
+
+
+// ! IMPORTANT
+// TODO: - Split up ElementsContext into multiple contexts
+// TODO: - Document this code
 
 const ElementsContextProvider = ({ children }) => {
     const [selected, setSelected] = React.useState(null);
     const [selectedSubcomponent, setSelectedSubcomponent] = React.useState(null) 
 
     const [components, setComponents] = React.useState([]);
+    const [_scaling, _setScaling] = React.useState(false);
     const componentsRef = React.useRef(null);
     componentsRef.current = components;
 
@@ -46,8 +53,10 @@ const ElementsContextProvider = ({ children }) => {
 
     const {options} = React.useContext(OptionsContext);
 
+
+
     const clamp = (min, val, max) => {
-        if (!options.value.borders) return val;
+        if (!options.value.borders) return Number(val);
         return Math.max(min, Math.min(val, max));
     }
 
@@ -68,7 +77,7 @@ const ElementsContextProvider = ({ children }) => {
                 _id: newUID,
                 _privateStyles: {},
                 type: 'box',
-                id: `Component_${rel.length + 1}`,
+                id: `Subcomponent_${rel.length + 1}`,
                 position: {
                     x: 0,
                     y: 0,
@@ -101,8 +110,8 @@ const ElementsContextProvider = ({ children }) => {
     }
 
     const updateSubcomponentSnapline = (id) => {
-        // NEVER remove this timeout. Due to render-time reasons, upon multiple components moves snaplines are off by a few pixles
-        // unless calculating snaplines is timed out
+        // ! NEVER remove this timeout. Due to render-time reasons, upon multiple components moves snaplines are off by a few pixles
+        // ! unless calculating snaplines is timed out
         setTimeout(() => {
             setSubcomponentSnaplines(prev => {
                 let outp = {...prev};
@@ -131,6 +140,7 @@ const ElementsContextProvider = ({ children }) => {
         setComponents(prev => [...prev, {
             _id: UID,
             _privateStyles: {},
+            _componentCollapsed: false,
             type: 'frame',
             id: `Frame_${counter}`,
             position: {
@@ -187,26 +197,49 @@ const ElementsContextProvider = ({ children }) => {
         })
     }
 
-    const updateSnapline = (id) => {
-        // NEVER remove this timeout. Due to render-time reasons, upon multiple components moves snaplines are off by a few pixles
-        // unless calculating snaplines is timed out
-        setTimeout(() => {
-            setSnaplines(prev => {
-                let outp = {...prev};
-                let ref = componentsRef.current[components.findIndex(obj => obj._id === id)].position;
-                outp[id] = {
-                    center: {
-                        x: (ref.width / 2) + ref.x, 
-                        y: (ref.height / 2) + ref.y
-                    },
-                    auxillary: {
-                        horizontal: [ref.y, ref.y + ref.height],
-                        vertical: [ref.x, ref.x + ref.width]
+    const updateSnapline = (id, type) => {
+        // ! NEVER remove this timeout. Due to render-time reasons, upon multiple components moves snaplines are off by a few pixles
+        // ! unless calculating snaplines is timed out
+        if (type === "frame") {
+            setTimeout(() => {
+                setSnaplines(prev => {
+                    let outp = {...prev};
+                    let ref = componentsRef.current[components.findIndex(obj => obj._id === id)].position;
+                    outp[id] = {
+                        center: {
+                            x: (ref.width / 2) + ref.x, 
+                            y: (ref.height / 2) + ref.y
+                        },
+                        auxillary: {
+                            horizontal: [ref.y, ref.y + ref.height],
+                            vertical: [ref.x, ref.x + ref.width]
+                        }
                     }
-                }
-                return outp;
-            })
-        }, 100)
+                    return outp;
+                })
+            }, 100)
+        } else {
+            // type === "subcomponent"
+            setTimeout(() => {
+                setSubcomponentSnaplines(prev => {
+                    let outp = {...prev};
+                    let cind = findIndexOfUID(extractFrameID(id));
+                    let sind = componentsRef.current[cind].subcomponents.findIndex(obj => obj._id === id);
+                    let ref = componentsRef.current[cind].subcomponents[sind].position;
+                    outp[id] = {
+                        center: {
+                            x: (ref.width / 2) + ref.x, 
+                            y: (ref.height / 2) + ref.y
+                        },
+                        auxillary: {
+                            horizontal: [ref.y, ref.y + ref.height],
+                            vertical: [ref.x, ref.x + ref.width]
+                        }
+                    }
+                    return outp;
+                })
+            }, 100)
+        }
     }
 
     const updateComponent = (obj, id) => {
@@ -228,6 +261,21 @@ const ElementsContextProvider = ({ children }) => {
             return outp;
         })
 
+        if (components[ind].subcomponents.findIndex(obj => obj._id === selectedSubcomponent) !== -1) {
+            setTimeout(() => {
+                setSelectedSubcomponent(null);
+            }, 10)
+        }
+
+        if (selected === UID) {
+            if (selectedSubcomponent && selectedSubcomponent.split('_')[0] === UID) {
+                setSelectedSubcomponent(null);
+            }
+            setTimeout(() => {
+                setSelected(null);
+            }, 10)
+        }
+
         setComponents(prev => removeIndexFromArray(prev, ind));
     }
 
@@ -238,7 +286,7 @@ const ElementsContextProvider = ({ children }) => {
             let ind = findIndexOfUID(UID);
             outp[ind] = {...outp[ind], 
                 _privateStyles: action === "end" ? {} : {
-                    outline: "1px dashed var(--accent)"
+                    outline: "2px dashed var(--accent)"
                 }}
             return outp;
         })
@@ -268,33 +316,80 @@ const ElementsContextProvider = ({ children }) => {
     }
 
     /**
+     * Returns null if resize is rejected, otherwise returns appropriate values
+     * @param {Object} options 
+     * @param {Object} ref 
+     * @returns 
+     */
+    const getNewSize = (options, ref) => {
+        try {
+            switch (options.direction) {
+                case "top":
+                        return (() => {
+                            let newy = clamp(0, options.value, 100);
+                            if (newy === 0) return null;
+                            let newheight = clamp(0.1, ref.position.height + (ref.position.y - options.value), 100);
+                            if (newheight === 0.1) return null;
+                            return {
+                                y: newy,
+                                height: newheight
+                            }
+                        })();
+                    case "bottom":
+                        return (() => {
+                            let newy = ref.position.y;
+                            let newheight = options.value - ref.position.y;
+                            newheight = clamp(0.1, newheight, 100 - newy);
+                            return {
+                                height: newheight
+                            }
+                        })();
+                    case "left":
+                        return (() => {
+                            let newx = clamp(0, options.value, 100);
+                            if (newx === 0) return null;
+                            let newwidth = clamp(0.1, ref.position.width + (ref.position.x - options.value), 100);
+                            if (newwidth === 0.1) return null;
+                            return {
+                                x: newx,
+                                width: newwidth
+                            }
+                        })();
+                    case "right":
+                        return (() => {
+                            let newx = ref.position.x;
+                            let newwidth = options.value - ref.position.x;
+                            newwidth = clamp(0.1, newwidth, 100 - newx);
+                            return {
+                                width: newwidth
+                            }
+                        })();
+            }
+        } catch (ex) {
+            console.warn("Resize failed: " + ex);
+            return null;
+        }
+    }
+
+    /**
      * Used for the scale tool. Might be the worst function I have ever written
      * @param {String} UID - Unique ID of UI component 
      * @param {Object} options - "direction" key - ("top", "bottom", "left", "right") ; "value" key - Of type Number, represents new position in percents 
      */
     const updateComponentSize = (UID, options) => {
         let ind = findIndexOfUID(UID);
-        /*if (!_lastRememberedScaleDimension) {
-            let dimension;
-            switch (options.direction) {
-                case "top":
-                    break
-            }
-        }*/
         switch (options.direction) {
             case "top":
                 setComponents(prev => {
                     let outp = [...prev];
-                    let newy = clamp(0, options.value, 100);
-                    if (newy === 0) return outp;
-                    let newheight = clamp(0.1, outp[ind].position.height + (outp[ind].position.y - options.value), 100);
-                    if (newheight === 0.1) return outp;
+                    let newsize = getNewSize(options, outp[ind])
+                    if (!newsize) return outp;
                     outp[ind] = {
                         ...outp[ind], 
                         position: {
                             ...outp[ind].position,
-                            y: newy,
-                            height: newheight
+                            y: newsize.y,
+                            height: newsize.height
                         }
                     }
                     return outp;
@@ -303,16 +398,13 @@ const ElementsContextProvider = ({ children }) => {
             case "bottom":
                 setComponents(prev => {
                     let outp = [...prev];
-                    let newy = outp[ind].position.y;
-                    let newheight = options.value - outp[ind].position.y;
-                    newheight = clamp(0.1, newheight, 100 - newy);
-
+                    let newsize = getNewSize(options, outp[ind]); 
+                    if (!newsize) return outp;                   
                     outp[ind] = {
                         ...outp[ind], 
                         position: {
                             ...outp[ind].position,
-                            y: newy,
-                            height: newheight
+                            height: newsize.height
                         }
                     }
                     return outp;
@@ -321,16 +413,14 @@ const ElementsContextProvider = ({ children }) => {
             case "left":
                 setComponents(prev => {
                     let outp = [...prev];
-                    let newx = clamp(0, options.value, 100);
-                    if (newx === 0) return outp;
-                    let newwidth = clamp(0.1, outp[ind].position.width + (outp[ind].position.x - options.value), 100);
-                    if (newwidth === 0.1) return outp;
+                    let newsize = getNewSize(options, outp[ind]);
+                    if (!newsize) return outp;
                     outp[ind] = {
                         ...outp[ind], 
                         position: {
                             ...outp[ind].position,
-                            x: newx,
-                            width: newwidth
+                            x: newsize.x,
+                            width: newsize.width
                         }
                     }
                     return outp;
@@ -339,16 +429,91 @@ const ElementsContextProvider = ({ children }) => {
             case "right":
                 setComponents(prev => {
                     let outp = [...prev];
-                    let newx = outp[ind].position.x;
-                    let newwidth = options.value - outp[ind].position.x;
-                    newwidth = clamp(0.1, newwidth, 100 - newx);
-
+                    let newsize = getNewSize(options, outp[ind]);
+                    if (!newsize) return outp;
                     outp[ind] = {
                         ...outp[ind], 
                         position: {
                             ...outp[ind].position,
-                            x: newx,
-                            width: newwidth
+                            width: newsize.width
+                        }
+                    }
+                    return outp;
+                })
+                break
+        }
+    }
+
+    /**
+     * "Don't repeat yourself"? What's that? Never heard of it
+     * @param {String} UID - Unique ID of UI component 
+     * @param {Object} options - "direction" key - ("top", "bottom", "left", "right") ; "value" key - Of type Number, represents new position in percents 
+     */
+    const updateSubcomponentSize = (UID, options) => {
+        let cind = findIndexOfUID(extractFrameID(UID));
+        let sind = findIndexOfSubcomponent(UID);
+        switch (options.direction) {
+            case "top":
+                setComponents(prev => {
+                    let outp = [...prev];
+                    let newsize = getNewSize(options, outp[cind].subcomponents[sind]);
+                    if (!newsize) return outp;
+
+                    outp[cind].subcomponents[sind] = {
+                        ...outp[cind].subcomponents[sind], 
+                        position: {
+                            ...outp[cind].subcomponents[sind].position,
+                            y: newsize.y,
+                            height: newsize.height
+                        }
+                    }
+                    return outp;
+                })
+                break
+            case "bottom":
+                setComponents(prev => {
+                    let outp = [...prev];
+                    let newsize = getNewSize(options, outp[cind].subcomponents[sind]);
+                    if (!newsize) return outp;
+
+                    outp[cind].subcomponents[sind] = {
+                        ...outp[cind].subcomponents[sind], 
+                        position: {
+                            ...outp[cind].subcomponents[sind].position,
+                            height: newsize.height
+                        }
+                    }
+                    return outp;
+                })
+                break
+            case "left":
+                setComponents(prev => {
+                    let outp = [...prev];
+                    let newsize = getNewSize(options, outp[cind].subcomponents[sind]);
+                    if (!newsize) return outp;
+
+                    outp[cind].subcomponents[sind] = {
+                        ...outp[cind].subcomponents[sind], 
+                        position: {
+                            ...outp[cind].subcomponents[sind].position,
+                            x: newsize.x,
+                            width: newsize.width
+                        }
+                    }
+                    return outp;
+                })
+                break
+            case "right":
+                setComponents(prev => {
+                    let outp = [...prev];
+                    let newsize = getNewSize(options, outp[cind].subcomponents[sind]);
+                    if (!newsize) return outp;
+
+                    outp[cind].subcomponents[sind] = {
+                        ...outp[cind].subcomponents[sind], 
+                        position: {
+                            ...outp[cind].subcomponents[sind].position,
+                            width: newsize.width
                         }
                     }
                     return outp;
@@ -365,13 +530,23 @@ const ElementsContextProvider = ({ children }) => {
             let ind = findIndexOfUID(UID.split('_')[0]);
             let sind = outp[ind].subcomponents.findIndex(obj => obj._id === UID);
             outp[ind].subcomponents[sind]._privateStyles = action === "end" ? {} : {
-                outline: "1px dashed yellow"
+                outline: "2px dashed yellow"
             }
             return outp;
         })
     }
 
     const removeSubcomponent = (UID) => {
+        if (selectedSubcomponent === UID) {
+            setSelectedSubcomponent(null);
+        }
+
+        setSubcomponentSnaplines(prev => {
+            let outp = {...prev};
+            delete outp[UID];
+            return outp;
+        })
+
         setComponents(prev => {
             let outp = [...prev];
             let cind = findIndexOfUID(UID.split('_')[0]);
@@ -381,14 +556,38 @@ const ElementsContextProvider = ({ children }) => {
         })
     }
 
+    const findIndexOfSubcomponent = (UID) => {
+        let cind = components.findIndex(obj => obj._id === extractFrameID(UID));
+        return components[cind].subcomponents.findIndex(obj => obj._id === UID);
+    }
+
+    let triggerModule = () => {};
+    const _setTriggerModule = (func) => {
+        if (typeof func !== 'function') {
+            console.error("_setTriggerModule didn't recieve a function: " + func)
+        }
+        triggerModule = func;
+    } 
+
     return (
         <ElementsContext.Provider 
             value={{
+                other: {
+                    modal: {
+                        trigger: triggerModule,
+                        _set: _setTriggerModule
+                    }
+                },
                 components: {
+                    _scaling: {
+                        value: _scaling,
+                        set: _setScaling
+                    },
                     selected: {
                         value: selected,
                         select: selectComponent
                     },
+                    getIndexOf: findIndexOfUID,
                     value: components,
                     set: setComponents,
                     add: addComponent,
@@ -402,7 +601,7 @@ const ElementsContextProvider = ({ children }) => {
                     
                 },
                 subcomponents: {
-                    find: () => {},
+                    getIndexOf: findIndexOfSubcomponent,
                     selected: {
                         value: selectedSubcomponent,
                         select: selectSubcomponent
@@ -410,6 +609,7 @@ const ElementsContextProvider = ({ children }) => {
                     add: addSubcomponent,
                     remove: removeSubcomponent,
                     updatePos: updateSubcomponentPosition,
+                    updateSize: updateSubcomponentSize,
                     hover: {
                         start: (UID) => hoverSubcomponentApplyStyles("start", UID),
                         end: (UID) => hoverSubcomponentApplyStyles("end", UID)
@@ -417,10 +617,10 @@ const ElementsContextProvider = ({ children }) => {
                 },
                 snaplines: {
                     value: snaplines,
-                    update: updateSnapline,
+                    update: (UID) => updateSnapline(UID, "frame"),
                     subcomponents: {
                         value: subcomponentSnaplines,
-                        update: updateSubcomponentSnapline,
+                        update: (UID) => updateSubcomponentSnapline(UID, "subcomponent"),
                     }
                 }
             }}

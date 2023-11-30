@@ -1,16 +1,15 @@
 import React from 'react'
-import { ElementsContext } from '../../../context/ElementsContext';
-import { OptionsContext } from '../../../context/OptionsContext';
-
+import { ElementsContext } from '../../../../context/ElementsContext';
+import { OptionsContext } from '../../../../context/OptionsContext';
 
 const SNAPLINING_OFFSET = 1;
 
-export default function ScaleToolOverlay(props) {
+export default function ScaleToolOverlaySC(props) {
     const [direction, setDirection] = React.useState("none");
     const directionRef = React.useRef(null);
     directionRef.current = direction;
 
-    const {components, snaplines} = React.useContext(ElementsContext);
+    const {components, subcomponents, snaplines} = React.useContext(ElementsContext);
     const {options} = React.useContext(OptionsContext);
 
 
@@ -23,7 +22,7 @@ export default function ScaleToolOverlay(props) {
 
 
     const handleScale = (e) => {
-        const containerRect = props.mainRef.current.getBoundingClientRect();
+        const containerRect = props.parentRef.current.getBoundingClientRect();
         let mouseX, mouseY, percentX = null, percentY = null;
 
         //calculating one of these is always unnecessary, but adding an if would probably cause impact performance more than calculating
@@ -37,7 +36,7 @@ export default function ScaleToolOverlay(props) {
             percentY = checkScaleSnaplines("vertical", (mouseX / containerRect.width) * 100);
         }
 
-        components.updateSize(props.component._id, {direction: directionRef.current, value: percentX ? percentX : percentY});
+        subcomponents.updateSize(props.component._id, {direction: directionRef.current, value: percentX ? percentX : percentY});
     }
 
 
@@ -48,7 +47,7 @@ export default function ScaleToolOverlay(props) {
         window.removeEventListener("mousemove", handleScale);
         window.removeEventListener("mouseup", endScale);
         setTimeout(() => {
-            snaplines.update(props.component._id);
+            snaplines.subcomponents.update(props.component._id);
         }, 1000)
         props.controlSnaplines.empty();
         setDirection("none");
@@ -57,7 +56,7 @@ export default function ScaleToolOverlay(props) {
     const checkScaleSnaplines = (direction, value) => {
         if (!options.value.snaplines) return value;
 
-        let ref = snaplines.value;
+        let ref = snaplines.subcomponents.value;
         const CONTROL_SNAPLINE_DIRECTION = direction === "horizontal" ? "y" : "x";
 
         for (let UID of Object.keys(ref)) {

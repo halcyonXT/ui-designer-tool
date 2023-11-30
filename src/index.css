@@ -1,12 +1,13 @@
 @import url('https://fonts.gstatic.com/s/play/v19/6aez4K2oVqwIvtU2Hw.woff2');
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@200;400;500;600;700&family=Syncopate:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&display=swap');
 
 body, html {
   margin: 0;
   padding: 0;
   width: 100vw;
   height: 100dvh;
-  background: #0e1113;
+  background: var(--subhtmlbackground);
   overflow: hidden;
 }
 
@@ -14,17 +15,37 @@ body, html {
   user-select: none;
 }
 
+
 :root {
+  --subhtmlbackground: #090b0c;
   --htmlbackground: #0e1113;
   --background: #15191c;
   --foreground: #20262b;
   --shadow: #0a0c0e;
-  --accent: rgb(61, 255, 164);
+  --accent: #3dffa4;
+  --complement: #ff3d98;
   --subaccent: rgb(82, 146, 115);
   --nonaccent: #e4e7eb;
   --subnonaccent: #626c75;
   --dark: #31383f;
 }
+
+
+/* ! WIP LIGHT THEME
+:root {
+  --subhtmlbackground: #ffffff;
+  --htmlbackground: #f1f1f1;
+  --background: #ffffff;
+  --foreground: #dddddd;
+  --shadow: #cbccce;
+  --accent: #4835b6;
+  --complement: #ff3d3d;
+  --subaccent: rgb(82, 146, 115);
+  --nonaccent: #979797;
+  --subnonaccent: #626c75;
+  --dark: #b3b3b3;
+}
+*/
 
 #root {
   width: 100%;
