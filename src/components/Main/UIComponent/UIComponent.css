@@ -15,7 +15,7 @@
 .-SCALE-NOTCH {
     --notch-size: 0.65vmax;
     position: absolute;
-    z-index: 99999;
+    z-index: 999999;
     height: var(--notch-size);
     aspect-ratio: 1 / 1 !important;
     background: var(--foreground);
@@ -68,7 +68,7 @@
 }
 
 .-SUBCOMPONENT-SNAPLINE {
-    z-index: 9999;
+    z-index: 9999999;
     pointer-events: none;
     animation: appear 50ms linear 0s 1 normal forwards;
     position: absolute;

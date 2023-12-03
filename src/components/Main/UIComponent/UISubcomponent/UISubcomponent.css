@@ -1,0 +1,13 @@
+.-SUBCOMPONENT {
+    border-style: solid !important;
+    border-width: 0px;
+    display: flex;
+    align-items: center;
+}
+
+.-TEXT-SUBCOMPONENT {
+    font-family: 'Starblast', sans-serif;
+    white-space: nowrap;
+    overflow:hidden;
+    min-width: max-content;
+}

@@ -49,7 +49,7 @@
 }
 
 .-SNAPLINE-Y {
-    z-index: 9999;
+    z-index: 9999999;
     pointer-events: none;
     animation: appear 50ms linear 0s 1 normal forwards;
     position: absolute;
@@ -61,7 +61,7 @@
 } 
 
 .-SNAPLINE-X {
-    z-index: 9999;
+    z-index: 9999999;
     pointer-events: none;
     animation: appear 50ms linear 0s 1 normal forwards;
     position: absolute;

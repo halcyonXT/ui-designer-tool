@@ -68,10 +68,10 @@ const ElementsContextProvider = ({ children }) => {
 
         let newUID = `${UID}_${sbcUID}`
 
+        // ! type: 'box', 'text' or 'round'
         setComponents(prev => {
             let outp = [...prev];
             let rel = outp[ind].subcomponents;
-            let frame = outp[ind];
 
             outp[ind].subcomponents = [...rel, {
                 _id: newUID,
@@ -84,11 +84,15 @@ const ElementsContextProvider = ({ children }) => {
                     width: 40,
                     height: 40
                 },
-                stroke: "",
-                width: 0,
-                value: "",
-                color: "",
-                fill: ""
+                custom: {
+                    stroke: {on: false, value: "#DCDCDCFF"},
+                    width: {on: false, value: "1"},
+                    // only for consistency
+                    value: {value: "new text"},
+                    color: {on: true, value: "#DCDCDCFF"},
+                    fill: {on: false, value: "#DCDCDCFF"},
+                    align: {value: 'left'}
+                }
             }]
 
             return outp;
@@ -261,6 +265,15 @@ const ElementsContextProvider = ({ children }) => {
             return outp;
         })
 
+        // * Remove all snaplines of subcomponent children
+        setSubcomponentSnaplines(prev => {
+            let outp = {...prev};
+            for (let subc of components[ind].subcomponents) {
+                delete outp[subc._id];
+            } 
+            return outp;
+        })
+
         if (components[ind].subcomponents.findIndex(obj => obj._id === selectedSubcomponent) !== -1) {
             setTimeout(() => {
                 setSelectedSubcomponent(null);
@@ -286,7 +299,7 @@ const ElementsContextProvider = ({ children }) => {
             let ind = findIndexOfUID(UID);
             outp[ind] = {...outp[ind], 
                 _privateStyles: action === "end" ? {} : {
-                    outline: "2px dashed var(--accent)"
+                    outline: "2px dashed #6dffff"
                 }}
             return outp;
         })
@@ -317,9 +330,10 @@ const ElementsContextProvider = ({ children }) => {
 
     /**
      * Returns null if resize is rejected, otherwise returns appropriate values
-     * @param {Object} options 
-     * @param {Object} ref 
-     * @returns 
+     * 
+     * @param {Object} options - Object containing properties `direction` and `value`
+     * @param {Object} ref - Reference to an object with a `position` property
+     * @returns {Object}
      */
     const getNewSize = (options, ref) => {
         try {
@@ -327,8 +341,13 @@ const ElementsContextProvider = ({ children }) => {
                 case "top":
                         return (() => {
                             let newy = clamp(0, options.value, 100);
-                            if (newy === 0) return null;
                             let newheight = clamp(0.1, ref.position.height + (ref.position.y - options.value), 100);
+                            if (newy === 0) {
+                                return {
+                                    y: 0,
+                                    height: (ref.position.height + ref.position.y)
+                                }
+                            }
                             if (newheight === 0.1) return null;
                             return {
                                 y: newy,
@@ -347,7 +366,12 @@ const ElementsContextProvider = ({ children }) => {
                     case "left":
                         return (() => {
                             let newx = clamp(0, options.value, 100);
-                            if (newx === 0) return null;
+                            if (newx === 0) {
+                                return {
+                                    x: 0,
+                                    width: (ref.position.width + ref.position.x)
+                                }
+                            }
                             let newwidth = clamp(0.1, ref.position.width + (ref.position.x - options.value), 100);
                             if (newwidth === 0.1) return null;
                             return {
@@ -538,7 +562,9 @@ const ElementsContextProvider = ({ children }) => {
 
     const removeSubcomponent = (UID) => {
         if (selectedSubcomponent === UID) {
-            setSelectedSubcomponent(null);
+            setTimeout(() => {
+                setSelectedSubcomponent(null);
+            }, 10)
         }
 
         setSubcomponentSnaplines(prev => {
@@ -568,6 +594,67 @@ const ElementsContextProvider = ({ children }) => {
         }
         triggerModule = func;
     } 
+
+
+    const __subcomponent = {
+        changeType: (UID, type) => {
+            if (!["box", "round", "text"].includes(type)) {
+                console.error("ElementsContext: __subcomponent.changeType didn't recieve a correct type: " + type);
+                return null;
+            }
+
+            let cind = findIndexOfUID(extractFrameID(UID));
+            let sind = findIndexOfSubcomponent(UID);
+
+            setComponents(prev => {
+                let outp = [...prev];
+                outp[cind].subcomponents[sind] = {
+                    ...outp[cind].subcomponents[sind],
+                    type: type
+                }
+                return outp;
+            })
+        },
+
+        /**
+         * Changes a key within the `custom` object of a specific subcomponent
+         * @param {string} UID - Unique identified of the subcomponent
+         * @param {string} key - The key that should be changed within the `custom` object
+         * @param {any} value - The value that the key should be changed to
+         */
+        changeCustom: (UID, key, value) => {
+            let cind = findIndexOfUID(extractFrameID(UID));
+            let sind = findIndexOfSubcomponent(UID);
+            try {
+                setComponents(prev => {
+                    let outp = [...prev];
+                    outp[cind].subcomponents[sind].custom[key].value = value;
+                    return outp;
+                })
+            } catch (ex) {
+                console.warn("__subcomponents.changeCustom - An error occured: " + ex);
+            }
+        },
+
+        /**
+         * Toggles `on` key of a specific property within the `custom` object
+         * @param {string} UID - Unique identified of the subcomponent
+         * @param {string} key - The key that should be changed within the `custom` object
+         */
+        toggleCustom: (UID, key) => {
+            let cind = findIndexOfUID(extractFrameID(UID));
+            let sind = findIndexOfSubcomponent(UID);
+            try {
+                setComponents(prev => {
+                    let outp = [...prev];
+                    outp[cind].subcomponents[sind].custom[key].on = !outp[cind].subcomponents[sind].custom[key].on;
+                    return outp;
+                })
+            } catch (ex) {
+                console.warn("__subcomponents.changeCustom - An error occured: " + ex);
+            }
+        }
+    }
 
     return (
         <ElementsContext.Provider 
@@ -610,6 +697,9 @@ const ElementsContextProvider = ({ children }) => {
                     remove: removeSubcomponent,
                     updatePos: updateSubcomponentPosition,
                     updateSize: updateSubcomponentSize,
+                    changeType: __subcomponent.changeType,
+                    changeCustom: __subcomponent.changeCustom,
+                    toggleCustom: __subcomponent.toggleCustom,
                     hover: {
                         start: (UID) => hoverSubcomponentApplyStyles("start", UID),
                         end: (UID) => hoverSubcomponentApplyStyles("end", UID)

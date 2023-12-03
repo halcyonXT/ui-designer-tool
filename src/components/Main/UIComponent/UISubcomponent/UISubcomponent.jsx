@@ -8,13 +8,14 @@ const CREATE_STYLES = {
 
     position: (component) => ({
         position: 'absolute',
+        boxSizing: 'border-box',
         left: component.position.x + "%",
         top: component.position.y + "%",
         width: component.position.width + "%",
         height: component.position.height + "%",
     }),
 
-    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', border: '1px solid var(--complement)' }) : ({}),
+    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', outline: '1px solid var(--complement)' }) : ({}),
 
     selected: (isSelected) => isSelected ? {outline: `2px dashed var(--complement)`, zIndex: "10000"} : {},
 
@@ -29,8 +30,42 @@ const CREATE_STYLES = {
         }
     },
 
-    zIndex: (z) => ({zIndex: `${100 + z}`})
+    zIndex: (z) => ({zIndex: `${z}`}),
     
+    compileCustomStyles: ref => {
+        let styles = {};
+        let round = false;
+        switch (ref.type) {
+            case "text":
+                styles.color = ref.custom.color.value;
+                styles.fontWeight = "bold";
+                let align = ref.custom.align.value;
+                styles.justifyContent = align === "left" ? "flex-start" : align === "center" ? "center" : "flex-end";
+                break
+            case "round":
+                round = true;
+            case "box":
+                let applicable = [
+                    ["fill", "background"], 
+                    ["stroke", "borderColor"], 
+                    // border width needs special treatment - ["width", "borderWidth"]
+                ];
+                for (let pair of applicable) {
+                    if (ref.custom[pair[0]].on) {
+                        styles[pair[1]] = ref.custom[pair[0]].value;
+                    }
+                }
+                if (round) {
+                    styles.borderRadius = '50%';
+                }
+                if (ref.custom["width"].on) {
+                    let pixelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
+                    styles.borderWidth = `${ref.custom.width.value / pixelRatio}px`;
+                }
+                break
+        }
+        return styles;
+    }
 }
 
 
@@ -44,6 +79,9 @@ export default function UISubcomponent(props) {
     const offsetRef = React.useRef(null);
     offsetRef.current = offset;
 
+    // ! Used only for the text type subcomponent, don't touch
+    const textRef = React.useRef(null);
+    
     const startDrag = (e) => {
         if (props.parentDragActive) return;
         e.stopPropagation();
@@ -65,8 +103,26 @@ export default function UISubcomponent(props) {
         let offset = key === "x" ? props.component.position.width : props.component.position.height;
         let newpercentage = percentage + (offset / 2);
 
+        const extractFrameID = (UID) => UID.split('_')[0];
+
+        const FRAME_ID = extractFrameID(props.component._id);
+
+        // ! This is only here as a reminder to implment advanced snaplining functionality
+        const USER_ALLOWED_CROSS_SUBCOMPONENT_SNAPLINING = false;
+
         for (let UID of Object.keys(snaplines.subcomponents.value)) {
             if (UID === props.component._id) continue;
+
+            // * Advanced guard clause - Check if: 1) Current snapline is of the same frame
+            // *                                   2) If it is not of the same frame, check if cross-frame is allowed (WIP)
+            // *                                   3) Prevent this clause from disabling the center snapline
+            if (!UID.startsWith(FRAME_ID)) {
+                if (UID !== "parentCenter") {
+                    if (!USER_ALLOWED_CROSS_SUBCOMPONENT_SNAPLINING) {
+                        continue;
+                    }
+                }
+            };
 
             let ref = snaplines.subcomponents.value[UID].center;
 
@@ -110,14 +166,67 @@ export default function UISubcomponent(props) {
         tool.value === 'drag' && startDrag(e);
     }
 
+    const computeFontSize = () => {
+        const isOverflown = () => (textRef.current.clientWidth > componentRef.current.clientWidth) || (textRef.current.clientHeight > componentRef.current.clientHeight)
+
+        let i = 2;
+        let overflow = false;
+        
+        const maxSize = 128 // very huge text size
+
+
+        while (!overflow && i < maxSize) {
+            textRef.current.style.fontSize = `${i}px`
+            overflow = isOverflown()
+            if (!overflow) i++
+        }
+
+        // revert to last state where no overflow happened:
+        textRef.current.style.fontSize = `${i - 1}px`
+    }
+
+    React.useEffect(() => {
+        if (props.component.type === "text") {
+            computeFontSize();
+        }
+    }, [props.component.custom.value.value, props.component.type, props.component.position]);
+
+    React.useEffect(() => {
+        // ! used to debounce
+        let timer = null;
+
+        const recomputeFs = () => {
+            if (props.component.type !== "text") return;
+
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+
+            timer = setTimeout(() => {
+                computeFontSize();
+                clearTimeout(timer);
+                timer = null;
+            }, 250)
+        }
+
+        window.addEventListener("resize", recomputeFs);
+
+        return () => {
+            window.removeEventListener("resize", recomputeFs);
+        }
+    }, [])
+
     return (
+        // ! CREATE_STYLES hierarchy matters - The ones at the bottom override the ones at the top
         <div 
             style={{
                 ...CREATE_STYLES.position(props.component),
                 ...CREATE_STYLES.debug(options.value.outlines),
                 ...props.component._privateStyles,
+                ...CREATE_STYLES.zIndex(props.zIndex),
                 ...CREATE_STYLES.selected(subcomponents.selected.value === props.component._id),
-                ...CREATE_STYLES.zIndex(props.zIndex)
+                ...CREATE_STYLES.compileCustomStyles(props.component)
             }}
             onMouseDown={handleMouseDown}
             onMouseEnter={() => subcomponents.hover.start(props.component._id)}
@@ -126,6 +235,13 @@ export default function UISubcomponent(props) {
             onClick={() => subcomponents.selected.select(props.component._id)}
             className='-SUBCOMPONENT'
         >
+            <div className='-TEXT-SUBCOMPONENT' ref={textRef}>
+                {
+                    props.component.type === "text"
+                    &&
+                    props.component.custom.value.value
+                }
+            </div>
             {
                 // If the current selected component is this component (checked using ids) and the current tool is scale, render ScaleToolOverlay
                 // and if the subcomponent selected value is null

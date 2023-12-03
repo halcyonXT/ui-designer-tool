@@ -368,10 +368,6 @@ export default React.memo(function ComponentHandbook() {
                         style={CREATE_STYLES.selectedTab(pageSelected === "subcomponents")}
                         >SUBCOMPONENTS</div>
                 </div>
-                <div className="-handbook-tab-row">
-                    <div className="-handbook-tab">...</div>
-                    <div className="-handbook-tab">...</div>
-                </div>
             </div>
             <div className="-handbook-text">
                 {

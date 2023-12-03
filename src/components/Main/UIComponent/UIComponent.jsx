@@ -16,9 +16,9 @@ const CREATE_STYLES = {
         height: component.position.height + "%",
     }),
 
-    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', border: '1px solid var(--accent)' }) : ({}),
+    debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', outline: '1px solid var(--accent)' }) : ({}),
 
-    selected: (isSelected) => isSelected ? {outline: `2px dashed #6dffff`, zIndex: "100"} : {},
+    selected: (isSelected) => isSelected ? {outline: `2px dashed var(--accent)`, zIndex: "999999"} : {},
 
     cursor: (tool) => {
         switch (tool) {
@@ -31,6 +31,7 @@ const CREATE_STYLES = {
         }
     },
     
+    zIndex: (ind) => ({zIndex: `${ind * 100}`})
 }
 
 
@@ -159,6 +160,7 @@ export default function UIComponent(props) {
                 ...CREATE_STYLES.position(props.component), 
                 ...CREATE_STYLES.debug(options.value.outlines), 
                 ...props.component._privateStyles ,
+                ...CREATE_STYLES.zIndex(components.getIndexOf(props.component._id)),
                 ...CREATE_STYLES.selected(components.selected.value === props.component._id && subcomponents.selected.value === null) , 
                 ...CREATE_STYLES.cursor(tool.value),
             }}
@@ -202,7 +204,7 @@ export default function UIComponent(props) {
                                 key={item._id}
                                 parentRef={componentRef}
                                 component={item}
-                                zIndex={index * 100}
+                                zIndex={(components.getIndexOf(props.component._id) * 100) + index}
                                 parentDragActive={dragActiveRef.current}
                                 controlSnaplines={{activate: activateSnapline, deactivate: deactivateSnapline, empty: emptySnaplines}}
                             />
