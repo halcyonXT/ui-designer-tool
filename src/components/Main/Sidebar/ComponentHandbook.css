@@ -8,7 +8,9 @@
 
 .-handbook-tabs {
     box-sizing: border-box;
-    height: 3vmax;
+    /* There used to be 2 rows, but now that its shortened to only 1 row the 3vmax is divided by 2 */
+    /* If 2 rows are ever needed again just reset it to 3vmax */
+    height: calc(3vmax / 2);
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -19,7 +21,8 @@
 .-handbook-tab-row {
     box-sizing: border-box;
     padding: 0.1vmax;
-    height: 48%;
+    /* There used to be 2 rows, but now that its shortened to only 1 row, so height is 100% instead of 48% */
+    height: 100%;
     display: flex;
     justify-content: space-between;
 }
@@ -49,7 +52,8 @@
 }
 
 .-handbook-text {
-    height: calc(100% - 3.4vmax);
+    /* One row was removed, do calc(100% - 3.4vmax) if two rows are needed again */
+    height: calc(100% - 1.7vmax);
     width: calc(100% - 0.8vmax);
     max-width: calc(100% - 0.8vmax);
     overflow-x: hidden;

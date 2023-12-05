@@ -138,6 +138,8 @@ export default function RulerPointer(props) {
                     </>
                 }
                 
+            </div>
+            <div className={`-RULER-POINTER-${props.direction.toUpperCase()}-WRAPPER`}>
                 <div 
                     style={props.direction === "x" ? {left: `${value}px`} : {top: `${value}px`}} 
                     className={props.direction === "x" ? "-RULER-POINTER-X" : "-RULER-POINTER-Y"}>

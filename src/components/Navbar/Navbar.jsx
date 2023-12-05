@@ -63,6 +63,15 @@ export default function Navbar() {
                     Show rulers
                 </Checkbox>
             </Checkboxes>
+            <div className='-navbar-whitespace'></div>
+            <Checkboxes>
+                <Checkbox x={() => {}} activated={options.value.outlines}>
+                    Grid
+                </Checkbox>
+                <Checkbox x={() => {}} activated={options.value.rulers}>
+                    Snap to grid & grid size
+                </Checkbox>
+            </Checkboxes>
             <Button shortcut="S" current={false} val='' xs={{marginLeft: 'auto'}} x={() => {}}>
                 {ICONS.save}
             </Button>
