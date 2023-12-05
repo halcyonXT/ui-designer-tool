@@ -67,6 +67,7 @@ export default function Sidebar() {
                                     ) : (
                                         components.value.map((item) => (
                                             <ComponentsSectionItem
+                                                key={item._id}
                                                 selected={components.selected.value === item._id}
                                                 delete={() => deleteElement(item._id)}
                                                 item={item}
