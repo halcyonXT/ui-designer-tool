@@ -66,6 +66,7 @@ export default function Navbar() {
             <div className="-navbar-separator"/>
             <div className='-navbar-option'>
                 <h6>This project has been abandoned. You can thank the insolent SB discord staff </h6>
+                <h6>Any issues should be reported to the staff. They will do nothing, same as they've always done</h6>
             </div>
             <Button shortcut="S" current={false} val='' xs={{marginLeft: 'auto'}} x={() => {}}>
                 {ICONS.save}
