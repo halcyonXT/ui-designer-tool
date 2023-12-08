@@ -8,7 +8,7 @@
 
 .-sidebar-details-position-wrapper {
     margin-top: 0.4vmax;
-    height: 20%;
+    min-height: 5vmax;
     width: 100%;
     box-sizing: border-box;
     display: flex;
@@ -271,4 +271,15 @@
     font-family: 'Starblast', sans-serif;
     color: var(--nonaccent);
     animation: ambig 1.5s linear 0s 1 normal forwards;
+}
+
+.-export-code {
+    text-shadow: none !important;
+    font-size: 0.75vmax !important;
+    user-select: text !important;
+    width: 95%;
+}
+
+.-export-code > span {
+    user-select: text !important;
 }

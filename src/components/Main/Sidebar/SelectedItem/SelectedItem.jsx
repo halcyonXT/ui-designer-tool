@@ -20,7 +20,7 @@ const EMPTY_SELECTED = () => ({
 
 
 export default function SelectedItem() {
-    const { components, subcomponents } = React.useContext(ElementsContext)
+    const { components, subcomponents, other } = React.useContext(ElementsContext)
 
     const [selected, setSelected] = React.useState(EMPTY_SELECTED())
 
@@ -122,9 +122,26 @@ export default function SelectedItem() {
         renewInputPosition();
     }, [components, subcomponents]);
 
+    React.useEffect(() => {
+        setDeletionProgress("none")
+    }, [components.selected.value, subcomponents.selected.value])
+
 
     // TODO:
-    const exportCodeButtonPress = () => { };
+    const exportCodeButtonPress = () => { 
+        other.modal.toggle(
+            <pre className={`language-js`} style={{ whiteSpace: 'pre-line' }}>
+                <code className="language-js -export-code">
+                    {
+                        other.getExportCode(selected._id)
+                    }
+                </code>
+            </pre>
+        )
+        setTimeout(() => {
+            Prism.highlightAll();
+        }, 5)
+    };
 
     const changeSubcomponentType = (type) => subcomponents.changeType(selected._id, type);
 

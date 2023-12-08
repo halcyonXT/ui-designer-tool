@@ -21,6 +21,10 @@ const OptionsContextProvider = ({ children }) => {
         const keydownParser = (event) => {
             const key = event.key.toUpperCase();
 
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
             switch (key) {
                 case 'Q':
                     setCurrentTool('pointer');

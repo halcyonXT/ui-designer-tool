@@ -50,6 +50,10 @@ const ElementsContextProvider = ({ children }) => {
     //const [_lastRememberedScaleDimension, _setLastRememberedScaleDimension] = React.useState(null);
 
     const [subcomponentSnaplines, setSubcomponentSnaplines] = React.useState({parentCenter: viewportCenterSnapline()})
+    const [modal, setModal] = React.useState({
+        active: false,
+        element: <></>
+    })
 
     const {options} = React.useContext(OptionsContext);
 
@@ -72,6 +76,7 @@ const ElementsContextProvider = ({ children }) => {
         setComponents(prev => {
             let outp = [...prev];
             let rel = outp[ind].subcomponents;
+            const STATIC_ON = true;
 
             outp[ind].subcomponents = [...rel, {
                 _id: newUID,
@@ -87,11 +92,10 @@ const ElementsContextProvider = ({ children }) => {
                 custom: {
                     stroke: {on: false, value: "#DCDCDCFF"},
                     width: {on: false, value: "1"},
-                    // only for consistency
-                    value: {value: "new text"},
-                    color: {on: true, value: "#DCDCDCFF"},
+                    value: {on: STATIC_ON, value: "new text"},
+                    color: {on: STATIC_ON, value: "#DCDCDCFF"},
                     fill: {on: false, value: "#DCDCDCFF"},
-                    align: {value: 'left'}
+                    align: {on: STATIC_ON, value: 'left'}
                 }
             }]
 
@@ -341,14 +345,19 @@ const ElementsContextProvider = ({ children }) => {
                 case "top":
                         return (() => {
                             let newy = clamp(0, options.value, 100);
-                            let newheight = clamp(0.1, ref.position.height + (ref.position.y - options.value), 100);
+                            let newheight = clamp(0, ref.position.height + (ref.position.y - options.value), 100);
                             if (newy === 0) {
                                 return {
                                     y: 0,
                                     height: (ref.position.height + ref.position.y)
                                 }
                             }
-                            if (newheight === 0.1) return null;
+                            if (newheight === 0) {
+                                return {
+                                    y: (ref.position.height + ref.position.y),
+                                    height: 0
+                                }
+                            }
                             return {
                                 y: newy,
                                 height: newheight
@@ -358,7 +367,7 @@ const ElementsContextProvider = ({ children }) => {
                         return (() => {
                             let newy = ref.position.y;
                             let newheight = options.value - ref.position.y;
-                            newheight = clamp(0.1, newheight, 100 - newy);
+                            newheight = clamp(0, newheight, 100 - newy);
                             return {
                                 height: newheight
                             }
@@ -372,8 +381,13 @@ const ElementsContextProvider = ({ children }) => {
                                     width: (ref.position.width + ref.position.x)
                                 }
                             }
-                            let newwidth = clamp(0.1, ref.position.width + (ref.position.x - options.value), 100);
-                            if (newwidth === 0.1) return null;
+                            let newwidth = clamp(0, ref.position.width + (ref.position.x - options.value), 100);
+                            if (newwidth === 0) {
+                                return {
+                                    x: (ref.position.width + ref.position.x),
+                                    width: 0
+                                }
+                            }
                             return {
                                 x: newx,
                                 width: newwidth
@@ -383,7 +397,7 @@ const ElementsContextProvider = ({ children }) => {
                         return (() => {
                             let newx = ref.position.x;
                             let newwidth = options.value - ref.position.x;
-                            newwidth = clamp(0.1, newwidth, 100 - newx);
+                            newwidth = clamp(0, newwidth, 100 - newx);
                             return {
                                 width: newwidth
                             }
@@ -587,16 +601,68 @@ const ElementsContextProvider = ({ children }) => {
         return components[cind].subcomponents.findIndex(obj => obj._id === UID);
     }
 
-    let triggerModule = () => {};
-    const _setTriggerModule = (func) => {
-        if (typeof func !== 'function') {
-            console.error("_setTriggerModule didn't recieve a function: " + func)
+    const toggleModal = (element) => {
+        try {
+            if (!modal.active) {
+                setModal(prev => ({
+                    active: !prev.active,
+                    element: 
+                    <div 
+                        className='-modal-prompt-wrapper' 
+                        onClick={(e) => e.target.classList.contains("-modal-prompt-wrapper") && toggleModal()}>
+                        <div className='-modal-prompt'>
+                            {element}
+                        </div>
+                    </div>
+                }))
+            } else {
+                setModal({active: false, element: <></>})
+            }
+        } catch (ex) {
+            console.warn(`Bad modal trigger: ` + ex);
         }
-        triggerModule = func;
-    } 
-
+    }
+    
 
     const __subcomponent = {
+        /**
+         * Used only internally for `__components.exportCode`
+         */
+        _parseCodeOfSubcomponents: (UID) => {
+            let outp = [];
+            let checks = {
+                box: ["fill", "stroke", "width"],
+                round: ["fill", "stroke", "width"],
+                text: ["align", "value", "color"]
+            }
+
+            for (let cur of components[findIndexOfUID(UID)].subcomponents) {
+
+                let unconcatenated = [];
+                let pos = {...cur.position};
+                for (let key of Object.keys(pos)) {
+                    pos[key] = Number(pos[key]).toFixed(2);
+                }
+
+                unconcatenated.push(`type: "${cur.type}"`);
+                unconcatenated.push(`position: [${pos.x}, ${pos.y}, ${pos.width}, ${pos.height}]`);
+
+                for (let key of checks[cur.type]) {
+                    if (cur.custom[key].on) {
+                        unconcatenated.push(`${key}: ` + (key === "width" ? cur.custom[key].value : `"${cur.custom[key].value}"`));
+                    }
+                }
+
+                if (outp.length >= 1) {
+                    outp.push(`        {` + unconcatenated.join(", ") + "},")
+                } else {
+                    outp.push("{" + unconcatenated.join(", ") + "},")
+                }
+            }
+
+            return outp.join("\n")
+        },
+
         changeType: (UID, type) => {
             if (!["box", "round", "text"].includes(type)) {
                 console.error("ElementsContext: __subcomponent.changeType didn't recieve a correct type: " + type);
@@ -656,14 +722,46 @@ const ElementsContextProvider = ({ children }) => {
         }
     }
 
+    const __component = {
+        /**
+         * Works regardless of whether a subcomponent id or a frame id is passed in
+         * @param {string} UID 
+         */
+        getExportCode: (UID) => {
+            let id = UID.indexOf("_") > -1 ? extractFrameID(UID) : UID;
+            let cind = findIndexOfUID(id);
+            let ref = components[cind];
+            let pos = {...ref.position};
+            for (let key of Object.keys(pos)) {
+                pos[key] = Number(pos[key]).toFixed(2);
+            }
+
+            // ! dont add any tabs, whitespace is preserved
+            let formattedCode =
+`event.ship.setUIComponent({
+    id: "${ref.id}",
+    position: [${pos.x}, ${pos.y}, ${pos.height}, ${pos.width}],
+    clickable: ${"true"},
+    visible: ${"true"},
+    components: [
+        ${__subcomponent._parseCodeOfSubcomponents(id)}
+    ]
+})`
+
+            return formattedCode;
+        }
+    }
+
+
     return (
         <ElementsContext.Provider 
             value={{
                 other: {
                     modal: {
-                        trigger: triggerModule,
-                        _set: _setTriggerModule
-                    }
+                        toggle: toggleModal,
+                        value: modal
+                    },
+                    getExportCode: __component.getExportCode,
                 },
                 components: {
                     _scaling: {

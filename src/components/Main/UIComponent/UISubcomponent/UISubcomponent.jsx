@@ -172,7 +172,7 @@ export default function UISubcomponent(props) {
         let i = 2;
         let overflow = false;
         
-        const maxSize = 128 // very huge text size
+        const maxSize = 256 // very huge text size
 
 
         while (!overflow && i < maxSize) {

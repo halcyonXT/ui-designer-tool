@@ -1,42 +1,27 @@
 import React from 'react'
 import Navbar from './components/Navbar/Navbar'
 import Main from './components/Main/Main'
-import { ElementsContext } from './context/ElementsContext'
 import './App.css'
+import { ElementsContext } from './context/ElementsContext'
+
+const __HUID_VERSION__ = "Beta v1.2.0"
 
 export default React.memo(function App() {
     const {other} = React.useContext(ElementsContext);
 
-    const [modal, setModal] = React.useState({
-        activated: false,
-        element: <></>
-    })
-
-    const triggerModal = (element) => {
-        setModal(prev => ({
-            activated: !prev.activated,
-            element: element ? element : <></>
-        }))
-    }
-
-    React.useEffect(() => {
-        other.modal._set(triggerModal);
-    }, [])
-
     return (
         <>
             {
-                modal.activated
-                &&
-                <div className='-modal-prompt-wrapper'>
-                    <div className='-modal-prompt'>
-                        {
-                            modal.element
-                        }
-                    </div>
-                </div>
+                // * If modal is active, render the element within it
+                other.modal.value.active
+                ?
+                other.modal.value.element
+                :
+                <></>
             }
-            <Navbar/>
+            
+
+            <Navbar __HUID_VERSION__={__HUID_VERSION__} />
             <Main/>
         </>
     )

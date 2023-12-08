@@ -31,7 +31,9 @@ export default function Navbar() {
 
     return (
         <div className='-navbar'>
-            <Logo/>
+            <Logo 
+                __HUID_VERSION__={props.__HUID_VERSION__} 
+            />
             <Option>
                 <h6>Game UI opacity:</h6>
                 <input type="range" className="win10-thumb -overlay-slider" min="0" max="100" value={overlayOpacity.value} onChange={changeOpacity}/>

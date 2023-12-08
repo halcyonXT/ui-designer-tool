@@ -10,10 +10,15 @@
 
 .-modal-prompt {
     position: absolute;
-    width: 35%;
-    height: 85%;
+    width: 40vmax;
+    max-width: 40vmax;
+    height: max-content;
     box-shadow: black 0px 0.5vmax 1vmax;
     background: var(--foreground);
+    display: grid;
+    place-items: center;
+    box-sizing: content-box;
+    padding: 1vmax;
 
 
     --notchSize: 20px;
@@ -29,4 +34,8 @@
         var(--notchSize) 100%, 
         0% calc(100% - var(--notchSize))
         );
+}
+
+.-modal-prompt-wrapper.inactive {
+    display: none;
 }
