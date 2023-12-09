@@ -724,54 +724,100 @@ const ElementsContextProvider = ({ children }) => {
         }
     }
     const __other = {
+        /**
+         * 
+         * @param {string} status - `error`, `success` or `warn` 
+         * @param {string} id - ID attribute of your element 
+         */
+        _animationStatus: (status, query) => {
+            try {
+                let newstatus = status.toLowerCase().trim();
+                const COLORS = {
+                    'error': '#ff3d98',
+                    'success': '#3dffa4',
+                    'warn': '#ffec3d'
+                }
+                let target = document.querySelector(query);
+                target.animate([
+                    {fill: `${COLORS[newstatus]}`},
+                    {fill: `var(--subnonaccent)`}
+                ], {
+                    duration: 350,
+                    delay: 0,
+                    fill: 'forwards'
+                })
+            } catch (ex) {
+                console.warn('__other._animationStatus failure: ' + ex)
+            }
+        },
         // ! Pasting parser
         pasteElementFromClipboard: (targetUID) => {
-            let current = {...clipboardRef.current.element};
-
-            if (current.type !== "none") {
-                if (current.type === "frame") {
-                    addComponent({...current})
-                } else {
-                    addSubcomponent(targetUID, current);
-                }
-            } 
+            try {
+                let current = {...clipboardRef.current.element};
+    
+                if (current.type !== "none") {
+                    if (current.type === "frame") {
+                        addComponent({...current})
+                    } else {
+                        addSubcomponent(targetUID, current);
+                    }
+                } 
+                __other._animationStatus('success', '#paste_btn > svg')
+            } catch (ex) {
+                console.warn(`Pasting exception: ` + ex);
+                __other._animationStatus('error', '#paste_btn > svg')
+            }
         },
 
         copyCurrentSelected: (returnValue = false) => {
-            let cselected;
-    
-            if (selectedRef.current.subcomponent) {
-                let cind = componentsRef.current.findIndex(obj => obj._id === extractFrameID(selectedRef.current.subcomponent));
-                let sind = componentsRef.current[cind].subcomponents.findIndex(obj => obj._id === selectedRef.current.subcomponent)
-                cselected = {...componentsRef.current[cind].subcomponents[sind]}
-            } else if (selectedRef.current.frame) {
-                let cind = componentsRef.current.findIndex(obj => obj._id === selectedRef.current.frame);
-                cselected = {...componentsRef.current[cind]}
-            } else {
-                cselected = EMPTY_SELECTED();
-            }
-    
-            if (returnValue) {
-                return {
-                    element: {...cselected}
+            try {
+                let cselected;
+        
+                if (selectedRef.current.subcomponent) {
+                    let cind = componentsRef.current.findIndex(obj => obj._id === extractFrameID(selectedRef.current.subcomponent));
+                    let sind = componentsRef.current[cind].subcomponents.findIndex(obj => obj._id === selectedRef.current.subcomponent)
+                    cselected = {...componentsRef.current[cind].subcomponents[sind]}
+                } else if (selectedRef.current.frame) {
+                    let cind = componentsRef.current.findIndex(obj => obj._id === selectedRef.current.frame);
+                    cselected = {...componentsRef.current[cind]}
+                } else {
+                    cselected = EMPTY_SELECTED();
                 }
-            }
+        
+                if (returnValue) {
+                    return {
+                        element: {...cselected}
+                    }
+                }
+    
+                setClipboard(prev => ({
+                    ...prev,
+                    element: {...cselected}
+                }));
 
-            setClipboard(prev => ({
-                ...prev,
-                element: {...cselected}
-            }));
+                __other._animationStatus('success', '#copy_btn > svg')
+            } catch (ex) {
+                console.warn(`Copy exception: ` + ex);
+                __other._animationStatus('error', '#copy > svg')
+            }
         },
 
         duplicate: function(UID) {
-            let current = __other.copyCurrentSelected(true);
-
-            if (current) {
-                if (current.element.type === "frame") {
-                    addComponent({...current.element})
-                } else {
-                    addSubcomponent(UID, current.element)
+            try {
+                let current = __other.copyCurrentSelected(true);
+    
+                if (current) {
+                    if (current.element.type === "frame") {
+                        addComponent({...current.element})
+                    } else {
+                        addSubcomponent(UID, current.element)
+                    }
                 }
+
+                __other._animationStatus('success', '#duplicate_btn > svg')
+            } catch (ex) {
+                console.warn(`Duplicate exception: ` + ex);
+                __other._animationStatus('error', '#duplicate_btn > svg')
             }
         }
     }

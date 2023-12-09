@@ -241,6 +241,14 @@ export default function SelectedItem() {
         other.clipboard.duplicate(selected._id.split("_")[0]);
     }
 
+    const handleCopyEl = () => {
+        other.clipboard.copy();
+    }
+
+    const handlePaste = () => {
+        other.clipboard.paste((other.clipboard.copy(true).element._id).split('_')[0]);
+    }
+
     const changeSubcomponentType = (type) => subcomponents.changeType(selected._id, type);
 
     return (
@@ -313,8 +321,9 @@ export default function SelectedItem() {
                             <div className="-sidebar-details-buttons-wrapper">
                                 <button
                                     className="-sidebar-details-button-nonaccent"
+                                    id="copy_btn"
                                     role="button"
-                                    onClick={() => {}}
+                                    onClick={handleCopyEl}
                                 >
                                     <div className='-navbar-button-shortcut-overlay sidebar'>[C]</div>
                                     {ICONS.copy}
@@ -322,13 +331,15 @@ export default function SelectedItem() {
                                 <button
                                     className="-sidebar-details-button-nonaccent"
                                     role="button"
-                                    onClick={() => {}}
+                                    id="paste_btn"
+                                    onClick={handlePaste}
                                 >
                                     <div className='-navbar-button-shortcut-overlay sidebar'>[V]</div>
                                     {ICONS.paste}
                                 </button>
                                 <button
                                     className="-sidebar-details-button-nonaccent"
+                                    id="duplicate_btn"
                                     role="button"
                                     onClick={handleDuplicate}
                                 >
