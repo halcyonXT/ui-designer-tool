@@ -158,6 +158,14 @@
 	font-weight: 700;
 }
 
+.-navbar-button-shortcut-overlay.sidebar {
+	--distance: 0.1vmax;
+	top: var(--distance);
+	right: var(--distance);
+	left: calc(calc(100% - 1vmax) - var(--distance));
+	width: 1vmax;
+}
+
 
 
 /*

@@ -22,7 +22,7 @@ const OptionsContextProvider = ({ children }) => {
             const key = event.key.toUpperCase();
 
             if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-                return;
+                return
             }
 
             switch (key) {

@@ -237,6 +237,10 @@ export default function SelectedItem() {
         }, 5)
     };
 
+    const handleDuplicate = () => {
+        other.clipboard.duplicate(selected._id.split("_")[0]);
+    }
+
     const changeSubcomponentType = (type) => subcomponents.changeType(selected._id, type);
 
     return (
@@ -306,16 +310,31 @@ export default function SelectedItem() {
                             }
                         </div>
                         <div>
-                            <div
-                                className="-sidebar-details-notice"
-                                style={{
-                                    justifyContent: "center",
-                                    opacity: deletionProgress === "asked" ? 1 : 0,
-                                }}
-                            >
-                                Are you sure?
+                            <div className="-sidebar-details-buttons-wrapper">
+                                <button
+                                    className="-sidebar-details-button-nonaccent"
+                                    role="button"
+                                    onClick={() => {}}
+                                >
+                                    {ICONS.copy}
+                                </button>
+                                <button
+                                    className="-sidebar-details-button-nonaccent"
+                                    role="button"
+                                    onClick={() => {}}
+                                >
+                                    {ICONS.paste}
+                                </button>
+                                <button
+                                    className="-sidebar-details-button-nonaccent"
+                                    role="button"
+                                    onClick={handleDuplicate}
+                                >
+                                    <div className='-navbar-button-shortcut-overlay sidebar'>[D]</div>
+                                    {ICONS.duplicate}
+                                </button>
                             </div>
-                            <div className="-sidebar-details-buttons-wrapper ">
+                            <div className="-sidebar-details-buttons-wrapper second">
                                 <button
                                     className="-sidebar-details-button -complement"
                                     role="button"
@@ -338,6 +357,15 @@ export default function SelectedItem() {
                                 >
                                     {deletionProgress !== "asked" ? "EXPORT CODE" : "YES"}
                                 </button>
+                            </div>
+                            <div
+                                className="-sidebar-details-notice"
+                                style={{
+                                    justifyContent: "center",
+                                    opacity: deletionProgress === "asked" ? 1 : 0,
+                                }}
+                            >
+                                Are you sure?
                             </div>
                         </div>
                     </div>
@@ -420,7 +448,7 @@ function Position({inputPosition, setInputPosition}) {
                     </div>
                 </div>
             </div>
-                        </div>
+        </div>
     )
 }
 

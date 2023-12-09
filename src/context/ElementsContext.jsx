@@ -51,9 +51,16 @@ const viewportCenterSnapline = () => ({
 // TODO: - Split up ElementsContext into multiple contexts
 // TODO: - Document this code
 
+const EMPTY_SELECTED = () => ({type: "none"})
+
 const ElementsContextProvider = ({ children }) => {
     const [selected, setSelected] = React.useState(null);
     const [selectedSubcomponent, setSelectedSubcomponent] = React.useState(null) 
+    const selectedRef = React.useRef(null);
+    selectedRef.current = {
+        frame: selected,
+        subcomponent: selectedSubcomponent
+    };
 
     const [components, setComponents] = React.useState([]);
     const [_scaling, _setScaling] = React.useState(false);
@@ -71,6 +78,41 @@ const ElementsContextProvider = ({ children }) => {
 
     const {options} = React.useContext(OptionsContext);
 
+    // ! COPYING
+    const [clipboard, setClipboard] = React.useState({
+        element: EMPTY_SELECTED()
+    })
+
+    
+
+    useEffect(() => {
+        // ! COPYING PARSER
+        const _keydownParser = (event) => {
+
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                return
+            }
+
+            const key = event.key.toUpperCase();
+
+            switch (key) {
+                case 'C':
+                    __other.copyCurrentSelected();
+                    break;
+                case 'D':
+                    __other.duplicate(extractFrameID(__other.copyCurrentSelected(true).element._id));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        window.addEventListener('keypress', _keydownParser);
+
+        return () => {
+            window.removeEventListener('keypress', _keydownParser);
+        }
+    }, [])
 
 
     const clamp = (min, val, max) => {
@@ -78,39 +120,54 @@ const ElementsContextProvider = ({ children }) => {
         return Math.max(min, Math.min(val, max));
     }
 
-    const findIndexOfUID = (UID) => components.findIndex(obj => obj._id === UID); 
+    const findIndexOfUID = (UID) => componentsRef.current.findIndex(obj => obj._id === UID); 
+    
 
-    const addSubcomponent = (UID) => {
+    const addSubcomponent = (UID, options = null) => {
         let ind = findIndexOfUID(UID);
         let sbcUID = createUID();
+        const STATIC_ON = true;
+
+        const DEFAULT = () => ({
+            type: 'box',
+            position: {
+                x: 0,
+                y: 0,
+                width: 40,
+                height: 40
+            },
+            custom: {
+                stroke: {on: false, value: "#DCDCDCFF"},
+                width: {on: false, value: "1"},
+                value: {on: STATIC_ON, value: "new text"},
+                color: {on: STATIC_ON, value: "#DCDCDCFF"},
+                fill: {on: false, value: "#DCDCDCFF"},
+                align: {on: STATIC_ON, value: 'left'}
+            }
+        })
+
+        const ref = options ? {...options} : DEFAULT();
 
         let newUID = `${UID}_${sbcUID}`
 
         // ! type: 'box', 'text' or 'round'
         setComponents(prev => {
             let outp = [...prev];
-            let rel = outp[ind].subcomponents;
-            const STATIC_ON = true;
+            
 
-            outp[ind].subcomponents = [...rel, {
+            outp[ind].subcomponents = [...outp[ind].subcomponents, {
                 _id: newUID,
                 _privateStyles: {},
-                type: 'box',
-                id: `Subcomponent_${rel.length + 1}`,
-                position: {
-                    x: 0,
-                    y: 0,
-                    width: 40,
-                    height: 40
-                },
-                custom: {
-                    stroke: {on: false, value: "#DCDCDCFF"},
-                    width: {on: false, value: "1"},
-                    value: {on: STATIC_ON, value: "new text"},
-                    color: {on: STATIC_ON, value: "#DCDCDCFF"},
-                    fill: {on: false, value: "#DCDCDCFF"},
-                    align: {on: STATIC_ON, value: 'left'}
-                }
+                id: `Subcomponent_${outp[ind].subcomponents.length + 1}`,
+                type: ref.type,
+                position: {...ref.position},
+                custom: (() => {
+                    let outp = {...ref.custom};
+                    for (let key of Object.keys(outp)) {
+                        outp[key] = {...outp[key]}
+                    }
+                    return outp;
+                })()
             }]
 
             return outp;
@@ -155,16 +212,11 @@ const ElementsContextProvider = ({ children }) => {
         }, 100)
     }
 
-    const addComponent = () => {
+    const addComponent = (options = null) => {
         ++counter;
         let UID = createUID();
 
-        setComponents(prev => [...prev, {
-            _id: UID,
-            _privateStyles: {},
-            _componentCollapsed: false,
-            type: 'frame',
-            id: `Frame_${counter}`,
+        const DEFAULT = () => ({
             position: {
                 x: 0,
                 y: 0,
@@ -175,7 +227,35 @@ const ElementsContextProvider = ({ children }) => {
             clickable: false,
             shortcut: null,
             subcomponents: []
+        })
+
+        const ref = (options) ? (options.clickable === undefined ? {...DEFAULT()} : {...options}) : {...DEFAULT()};
+
+        setComponents(prev => [...prev, {
+            _id: UID,
+            _privateStyles: {},
+            _componentCollapsed: false,
+            type: 'frame',
+            id: `Frame_${counter}`,
+            position: {...ref.position},
+            visible: ref.visible,
+            clickable: ref.clickable,
+            shortcut: ref.shortcut,
+            subcomponents: ref.subcomponents?.length > 0 ? ref.subcomponents.map(item => {
+                let outp = {...item};
+                outp._id = `${UID}_${createUID()}`;
+                outp.position = {...outp.position};
+                outp.custom = (() => {
+                    let ret = {...outp.custom};
+                    for (let key of Object.keys(ret)) {
+                        ret[key] = {...ret[key]}
+                    }
+                    return ret
+                })();
+                return outp
+            }) : []
         }])
+
 
         setSelected(UID);
 
@@ -317,7 +397,7 @@ const ElementsContextProvider = ({ children }) => {
             let ind = findIndexOfUID(UID);
             outp[ind] = {...outp[ind], 
                 _privateStyles: action === "end" ? {} : {
-                    outline: "2px dashed #6dffff"
+                    outline: "2px dashed #6dffff",
                 }}
             return outp;
         })
@@ -638,7 +718,56 @@ const ElementsContextProvider = ({ children }) => {
             console.warn(`Bad modal trigger: ` + ex);
         }
     }
+    const __other = {
+        // ! Pasting parser
+        pasteElementFromClipboard: (targetUID, custom = null) => {
+            if (!custom) {
+                if (clipboard.element.type !== "none") {
+                    addSubcomponent(targetUID, clipboard.element);
+                } 
+            } else {
+                addSubcomponent(targetUID, custom)
+            }
+        },
+
+        copyCurrentSelected: (returnValue = false) => {
+            let cselected;
     
+            if (selectedRef.current.subcomponent) {
+                let cind = componentsRef.current.findIndex(obj => obj._id === extractFrameID(selectedRef.current.subcomponent));
+                let sind = componentsRef.current[cind].subcomponents.findIndex(obj => obj._id === selectedRef.current.subcomponent)
+                cselected = {...componentsRef.current[cind].subcomponents[sind]}
+            } else if (selectedRef.current.frame) {
+                let cind = componentsRef.current.findIndex(obj => obj._id === selectedRef.current.frame);
+                cselected = {...componentsRef.current[cind]}
+            } else {
+                cselected = EMPTY_SELECTED();
+            }
+    
+            if (returnValue) {
+                return {
+                    element: {...cselected}
+                }
+            }
+
+            setClipboard(prev => ({
+                ...prev,
+                element: {...cselected}
+            }));
+        },
+
+        duplicate: function(UID) {
+            let current = __other.copyCurrentSelected(true);
+
+            if (current) {
+                if (current.element.type === "frame") {
+                    addComponent({...current.element})
+                } else {
+                    addSubcomponent(UID, current.element)
+                }
+            }
+        }
+    }
 
     const __subcomponent = {
         /**
@@ -811,6 +940,11 @@ const ElementsContextProvider = ({ children }) => {
                         value: modal
                     },
                     getExportCode: __component.getExportCode,
+                    clipboard: {
+                        copy: __other.copyCurrentSelected,
+                        paste: __other.pasteElementFromClipboard,
+                        duplicate: __other.duplicate
+                    },
                 },
                 components: {
                     _scaling: {

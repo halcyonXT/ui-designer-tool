@@ -14,6 +14,7 @@ const CREATE_STYLES = {
         top: component.position.y + "%",
         width: component.position.width + "%",
         height: component.position.height + "%",
+        margin: '1px',
     }),
 
     debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', outline: '1px solid var(--accent)' }) : ({}),
@@ -155,6 +156,7 @@ export default function UIComponent(props) {
         }
     }
 
+    console.log(components.value[components.getIndexOf(components.selected.value)])
 
     return (
         <div
@@ -188,9 +190,9 @@ export default function UIComponent(props) {
 
                 <div 
                     className='-COMPONENT-RELATIVE'
-                    style={
+                    style={{
                         ...CREATE_STYLES.visible(props.component.visible)
-                    }
+                    }}
                 >
                     {
                         // If snapline x has been activated with controlSnaplines prop in UISubcomponent

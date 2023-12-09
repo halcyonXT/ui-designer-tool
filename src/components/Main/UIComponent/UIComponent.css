@@ -4,8 +4,11 @@
 
 .-COMPONENT-RELATIVE {
     position: absolute;
-    height: 100%;
-    width: 100%;
+    --inward: 2px;
+    height: calc(100% - (var(--inward) * 2));
+    width: calc(100% - (var(--inward) * 2));
+    margin-left: 2px;
+    margin-top: 2px;
     top: 0;
     left: 0;
     box-sizing: border-box;
