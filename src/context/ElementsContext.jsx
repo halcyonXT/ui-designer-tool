@@ -82,6 +82,8 @@ const ElementsContextProvider = ({ children }) => {
     const [clipboard, setClipboard] = React.useState({
         element: EMPTY_SELECTED()
     })
+    const clipboardRef = React.useRef(null);
+    clipboardRef.current = clipboard;
 
     
 
@@ -102,6 +104,9 @@ const ElementsContextProvider = ({ children }) => {
                 case 'D':
                     __other.duplicate(extractFrameID(__other.copyCurrentSelected(true).element._id));
                     break;
+                case 'V':
+                    __other.pasteElementFromClipboard(extractFrameID(__other.copyCurrentSelected(true).element._id));
+                    break
                 default:
                     break;
             }
@@ -720,14 +725,16 @@ const ElementsContextProvider = ({ children }) => {
     }
     const __other = {
         // ! Pasting parser
-        pasteElementFromClipboard: (targetUID, custom = null) => {
-            if (!custom) {
-                if (clipboard.element.type !== "none") {
-                    addSubcomponent(targetUID, clipboard.element);
-                } 
-            } else {
-                addSubcomponent(targetUID, custom)
-            }
+        pasteElementFromClipboard: (targetUID) => {
+            let current = {...clipboardRef.current.element};
+
+            if (current.type !== "none") {
+                if (current.type === "frame") {
+                    addComponent({...current})
+                } else {
+                    addSubcomponent(targetUID, current);
+                }
+            } 
         },
 
         copyCurrentSelected: (returnValue = false) => {

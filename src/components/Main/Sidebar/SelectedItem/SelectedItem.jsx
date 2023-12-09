@@ -316,6 +316,7 @@ export default function SelectedItem() {
                                     role="button"
                                     onClick={() => {}}
                                 >
+                                    <div className='-navbar-button-shortcut-overlay sidebar'>[C]</div>
                                     {ICONS.copy}
                                 </button>
                                 <button
@@ -323,6 +324,7 @@ export default function SelectedItem() {
                                     role="button"
                                     onClick={() => {}}
                                 >
+                                    <div className='-navbar-button-shortcut-overlay sidebar'>[V]</div>
                                     {ICONS.paste}
                                 </button>
                                 <button

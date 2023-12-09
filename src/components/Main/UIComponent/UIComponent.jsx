@@ -156,8 +156,6 @@ export default function UIComponent(props) {
         }
     }
 
-    console.log(components.value[components.getIndexOf(components.selected.value)])
-
     return (
         <div
             style={{ 
