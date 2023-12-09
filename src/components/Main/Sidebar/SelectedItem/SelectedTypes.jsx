@@ -33,6 +33,24 @@ export const SelectedFrame = (props) => {
                             style={{fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.85vmax'}}
                         />
                     </SpaceBetween>
+                    <SpaceBetween xs={props.component.clickable ? {} : {opacity: "0.5", pointerEvents: 'none'}}>
+                        <Checkbox 
+                            x={() => components.toggleCustom(props.component._id, "clickable")} 
+                            activated={props.component.clickable} 
+                            xs={{opacity: '1', pointerEvents: 'all'}}
+                        >
+                            Clickable&nbsp;&nbsp;
+                        </Checkbox>
+                    </SpaceBetween>
+                    <SpaceBetween xs={props.component.visible ? {} : {opacity: "0.5", pointerEvents: 'none'}}>
+                        <Checkbox 
+                            x={() => components.toggleCustom(props.component._id, "visible")} 
+                            activated={props.component.visible} 
+                            xs={{opacity: '1', pointerEvents: 'all'}}
+                        >
+                            Visible&nbsp;&nbsp;
+                        </Checkbox>
+                    </SpaceBetween>
                 </div>
             </div>
         </>

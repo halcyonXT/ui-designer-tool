@@ -246,31 +246,29 @@ export default function SelectedItem() {
                 // * render details
                 (components.selected.value || subcomponents.selected.value) && (
                     <div className="-sidebar-details">
-                        <div className="-sidebar-details-title">
-                            {components.selected.value !== null &&
-                                subcomponents.selected.value === null && (
-                                    <FrameSelected
-                                        component={
-                                            selected
-                                        }
-                                    />
-                                )}
-                            {subcomponents.selected.value !== null && (
-                                <SubcomponentSelected
+                        {components.selected.value !== null &&
+                            subcomponents.selected.value === null && (
+                                <FrameSelected
                                     component={
                                         selected
                                     }
-                                    parent={
-                                        components.value[
-                                            components.getIndexOf(
-                                                subcomponents.selected.value.split("_")[0]
-                                            )
-                                        ]
-                                    }
-                                    deselectSubcomponent={() => subcomponents.selected.select(null)}
                                 />
                             )}
-                        </div>
+                        {subcomponents.selected.value !== null && (
+                            <SubcomponentSelected
+                                component={
+                                    selected
+                                }
+                                parent={
+                                    components.value[
+                                        components.getIndexOf(
+                                            subcomponents.selected.value.split("_")[0]
+                                        )
+                                    ]
+                                }
+                                deselectSubcomponent={() => subcomponents.selected.select(null)}
+                            />
+                        )}
                         {
                             selected && selected.type !== "frame"
                             &&
@@ -430,10 +428,12 @@ const FrameSelected = (props) => {
     if (!props.component) return <></>;
 
     return (
-        <>
-            {props.component.id}
-            <div className="-sidebar-details-title-icon"></div>
-        </>
+        <div className="-sidebar-details-title frame">
+            <div className='-name-flex'>
+                <span className='-sidebar-details-title-icon'>{ICONS.object}</span>
+                {props.component.id}
+            </div>
+        </div>
     );
 };
 
@@ -441,15 +441,17 @@ const SubcomponentSelected = (props) => {
     if (!props.component || !props.parent) return <></>;
 
     return (
-        <>
+        <div className="-sidebar-details-title">
             <span className="-sidebar-details-title-parent" onClick={props.deselectSubcomponent}>
                 {props.parent.id}&nbsp;&nbsp;&gt;
             </span>
-            <span className="-sidebar-details-title-current">
-                {props.component.id}
-            </span>
-            <div className="-sidebar-details-title-icon"></div>
-        </>
+            <div className='-name-flex'>
+                <span className='-sidebar-details-title-icon'>{ICONS[props.component.type]}</span>
+                <span className="-sidebar-details-title-current">
+                    {props.component.id}
+                </span>
+            </div>
+        </div>
     );
 };
 

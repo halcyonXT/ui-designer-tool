@@ -31,7 +31,9 @@ const CREATE_STYLES = {
         }
     },
     
-    zIndex: (ind) => ({zIndex: `${ind * 100}`})
+    zIndex: (ind) => ({zIndex: `${ind * 100}`}),
+
+    visible: (isVisible) => isVisible ? ({}) : ({opacity: "0"}),
 }
 
 
@@ -184,7 +186,12 @@ export default function UIComponent(props) {
                     <ScaleToolOverlay mainRef={props.mainRef} controlSnaplines={props.controlSnaplines} component={props.component} />
                 }
 
-                <div className='-COMPONENT-RELATIVE'>
+                <div 
+                    className='-COMPONENT-RELATIVE'
+                    style={
+                        ...CREATE_STYLES.visible(props.component.visible)
+                    }
+                >
                     {
                         // If snapline x has been activated with controlSnaplines prop in UISubcomponent
                         activeSnaplines.x.element && activeSnaplines.x.element

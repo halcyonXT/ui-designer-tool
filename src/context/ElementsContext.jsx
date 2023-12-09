@@ -757,10 +757,10 @@ const ElementsContextProvider = ({ children }) => {
             // ! dont add any tabs, whitespace is preserved
             let formattedCode =
 `event.ship.setUIComponent({
-    id: "${ref.id.custom.huid_sanitizeID()}",
+    id: "${ref.id.huid_sanitizeID()}",
     position: [${pos.x}, ${pos.y}, ${pos.height}, ${pos.width}],
-    clickable: ${"true"},
-    visible: ${"true"},
+    clickable: ${ref.clickable},
+    visible: ${ref.visible},
     components: [
         ${__subcomponent._parseCodeOfSubcomponents(id)}
     ]
@@ -786,6 +786,19 @@ const ElementsContextProvider = ({ children }) => {
                 console.warn("__components.changeCustom - An error occured: " + ex);
             }
         },
+
+        toggleCustom: (UID, key) => {
+            let cind = findIndexOfUID(UID);
+            try {
+                setComponents(prev => {
+                    let outp = [...prev];
+                    outp[cind][key] = !outp[cind][key];
+                    return outp;
+                })
+            } catch (ex) {
+                console.warn("__components.toggleCustom - An error occured: " + ex);
+            }
+        }
     }
 
 
@@ -816,6 +829,7 @@ const ElementsContextProvider = ({ children }) => {
                     updateSize: updateComponentSize,
                     delete: removeComponent,
                     changeCustom: __component.changeCustom,
+                    toggleCustom: __component.toggleCustom,
                     hover: {
                         start: (UID) => hoverComponentApplyStyles("start", UID),
                         end: (UID) => hoverComponentApplyStyles("end", UID)
