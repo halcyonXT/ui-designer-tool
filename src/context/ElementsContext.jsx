@@ -32,6 +32,10 @@ String.prototype.roundToDecimalPlace = function(decimal) {
     return String(Math.round(newthis * mult) / mult);
 }
 
+String.prototype.huid_sanitizeID = function() {
+    return this.replace(/ /g, '_').replace(/"/g, '');
+}
+
 
 
 const viewportCenterSnapline = () => ({
@@ -744,14 +748,16 @@ const ElementsContextProvider = ({ children }) => {
             let cind = findIndexOfUID(id);
             let ref = components[cind];
             let pos = {...ref.position};
+
+            
+
             for (let key of Object.keys(pos)) {
                 pos[key] = Number(pos[key]).roundToDecimalPlace(2);
             }
-
             // ! dont add any tabs, whitespace is preserved
             let formattedCode =
 `event.ship.setUIComponent({
-    id: "${ref.id}",
+    id: "${ref.id.custom.huid_sanitizeID()}",
     position: [${pos.x}, ${pos.y}, ${pos.height}, ${pos.width}],
     clickable: ${"true"},
     visible: ${"true"},
@@ -759,9 +765,27 @@ const ElementsContextProvider = ({ children }) => {
         ${__subcomponent._parseCodeOfSubcomponents(id)}
     ]
 })`
-
             return formattedCode;
-        }
+        },
+
+        /**
+         * Changes a key within the `custom` object of a specific frame
+         * @param {string} UID - Unique identified of the frame
+         * @param {string} key - The key that should be changed 
+         * @param {any} value - The value that the key should be changed to
+         */
+        changeCustom: (UID, key, value) => {
+            let cind = findIndexOfUID(UID);
+            try {
+                setComponents(prev => {
+                    let outp = [...prev];
+                    outp[cind][key] = value;
+                    return outp;
+                })
+            } catch (ex) {
+                console.warn("__components.changeCustom - An error occured: " + ex);
+            }
+        },
     }
 
 
@@ -791,6 +815,7 @@ const ElementsContextProvider = ({ children }) => {
                     updatePos: updateComponentPosition,
                     updateSize: updateComponentSize,
                     delete: removeComponent,
+                    changeCustom: __component.changeCustom,
                     hover: {
                         start: (UID) => hoverComponentApplyStyles("start", UID),
                         end: (UID) => hoverComponentApplyStyles("end", UID)

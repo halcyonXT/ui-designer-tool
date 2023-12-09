@@ -3,6 +3,41 @@ import { SketchPicker } from 'react-color';
 import { ICONS } from '../ICONS'
 import { ElementsContext } from '../../../../context/ElementsContext'
 
+export const SelectedFrame = (props) => {
+    const {components} = React.useContext(ElementsContext);
+    
+    /**
+     * Sets a frame property to value
+     * @param {string} prop - `Object[prop]`
+     * @param {string} value - `Object[prop] = value`
+     */
+    const onChangeProperty = (prop, value) => {
+        components.changeCustom(props.component._id, prop, value.huid_sanitizeID());
+    }
+
+    return (
+        <>
+            <div className='-group-with-title'>
+                <div className="-sidebar-details-type-title">
+                    Custom:
+                </div>
+                <div className='-group-with-title-content'>
+                    <SpaceBetween>
+                        <div className='-navbar-checkbox-title'>
+                            ID:&nbsp;&nbsp;
+                        </div>
+                        <input 
+                            className='-specifics-input value' 
+                            value={props.component.id} 
+                            onChange={(e) => onChangeProperty("id", e.target.value)}
+                            style={{fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.85vmax'}}
+                        />
+                    </SpaceBetween>
+                </div>
+            </div>
+        </>
+    )
+}
 
 export const SelectedText = (props) => {
     const {subcomponents} = React.useContext(ElementsContext);
@@ -47,33 +82,37 @@ export const SelectedText = (props) => {
                     </div>
                 </div>
             </div>
-            <div className="-sidebar-details-type-title">
-                Custom:
+            <div className='-group-with-title'>
+                <div className="-sidebar-details-type-title">
+                    Custom:
+                </div>
+                <div className="-group-with-title-content">
+                    <SpaceBetween>
+                        <div className='-navbar-checkbox-title'>
+                            Value:&nbsp;&nbsp;
+                        </div>
+                        <input className='-specifics-input value' value={props.component.custom.value.value} onChange={onChangeText}/>
+                    </SpaceBetween>
+                    <SpaceBetween xs={props.component.custom.color.on ? {} : {opacity: "0.5", pointerEvents: 'none'}}>
+                        <div className='-navbar-checkbox-title'>
+                            Font color:&nbsp;&nbsp;
+                        </div>
+                        <div className='-specifics-input absolute'>
+                            {props.component.custom.color.value}
+                        </div>
+                        <div className='-picker-trigger-wrapper'>
+                            {
+                                color
+                                &&
+                                <PickerWrapper>
+                                    <SketchPicker className="-styled-sketch-picker" color={props.component.custom.color.value} onChange={onChangeColor} />
+                                </PickerWrapper>
+                            }
+                            <div className='-picker-trigger' onClick={() => setColor(p => !p)} style={{background: props.component.custom.color.value}}></div>
+                        </div>
+                    </SpaceBetween>
+                </div>
             </div>
-            <SpaceBetween>
-                <div className='-navbar-checkbox-title'>
-                    Value:&nbsp;&nbsp;
-                </div>
-                <input className='-specifics-input value' value={props.component.custom.value.value} onChange={onChangeText}/>
-            </SpaceBetween>
-            <SpaceBetween xs={props.component.custom.color.on ? {} : {opacity: "0.5", pointerEvents: 'none'}}>
-                <div className='-navbar-checkbox-title'>
-                    Font color:&nbsp;&nbsp;
-                </div>
-                <div className='-specifics-input absolute'>
-                    {props.component.custom.color.value}
-                </div>
-                <div className='-picker-trigger-wrapper'>
-                    {
-                        color
-                        &&
-                        <PickerWrapper>
-                            <SketchPicker className="-styled-sketch-picker" color={props.component.custom.color.value} onChange={onChangeColor} />
-                        </PickerWrapper>
-                    }
-                    <div className='-picker-trigger' onClick={() => setColor(p => !p)} style={{background: props.component.custom.color.value}}></div>
-                </div>
-            </SpaceBetween>
         </>
     )
 }

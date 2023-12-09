@@ -130,6 +130,10 @@
     font-size: 0.7vmax;
     margin: 0;
     margin-left: 0.25vmax;
+    max-width: 12vmax;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     text-align: left;
 }
 
@@ -208,7 +212,10 @@
     font-size: 1vmax;
     height: 3vmax;
     width: 100%;
-    max-width: 100%;
+    max-width: 17vmax !important;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     box-sizing: border-box;
     color: var(--nonaccent);

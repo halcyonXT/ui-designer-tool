@@ -2,7 +2,7 @@ import React from 'react'
 import './SelectedItem.css'
 import { ICONS } from '../ICONS'
 import { ElementsContext } from '../../../../context/ElementsContext'
-import { SelectedBox, SelectedText } from './SelectedTypes'
+import { SelectedBox, SelectedText, SelectedFrame } from './SelectedTypes'
 
 
 
@@ -61,7 +61,7 @@ export default function SelectedItem() {
             :
             selected.type === "frame"
             ?
-            <></>
+            <SelectedFrame component={selected} />
             :
             <span 
                 className='-ambiguous-type'
@@ -240,7 +240,7 @@ export default function SelectedItem() {
     const changeSubcomponentType = (type) => subcomponents.changeType(selected._id, type);
 
     return (
-        <>
+        <React.Fragment>
             {
                 // * If either a subcomponent or a component has been selected
                 // * render details
@@ -345,7 +345,7 @@ export default function SelectedItem() {
                     </div>
                 )
             }
-        </>
+        </React.Fragment>
     )
 }
 

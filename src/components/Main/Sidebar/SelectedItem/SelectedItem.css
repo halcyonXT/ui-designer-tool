@@ -293,3 +293,17 @@
 .-export-code > span {
     user-select: text !important;
 }
+
+.-group-with-title {
+    width: 100%;
+    display: flex; 
+    flex-direction: column;
+    gap: 0.35vmax;
+}
+
+.-group-with-title-content {
+    width: 100%;
+    display: flex; 
+    flex-direction: column;
+    gap: 0.7vmax;
+}
