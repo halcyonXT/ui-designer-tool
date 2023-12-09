@@ -11,7 +11,7 @@ const ICONS = {
 }
 
 
-export default function Navbar() {
+export default function Navbar(props) {
     const {overlayOpacity, tool, options} = React.useContext(OptionsContext);
 
     const changeOpacity = (e) => {
@@ -66,10 +66,6 @@ export default function Navbar() {
                 </Checkbox>
             </Checkboxes>
             <div className="-navbar-separator"/>
-            <div className='-navbar-option'>
-                <h6>This project might get abandoned</h6>
-                <h6>To vote against its abandonment, click <a href='https://discord.gg/CSwnMkxYTf' target='blank_'>here</a></h6>
-            </div>
             <Button shortcut="S" current={false} val='' xs={{marginLeft: 'auto'}} x={() => {}}>
                 {ICONS.save}
             </Button>

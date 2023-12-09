@@ -22,8 +22,11 @@ export const SelectedText = (props) => {
 
     return (
         <>
-            <div className="-sidebar-details-type-section-wrapper" style={{height: '1.75vmax'}}>
-                <div className="-sidebar-details-type-wrapper" style={{height: '100%'}}>
+            <div className="-sidebar-details-type-section-wrapper" style={{}}>
+                <div className="-sidebar-details-type-title">
+                    Align:
+                </div>
+                <div className="-sidebar-details-type-wrapper second" style={{height: '100%'}}>
                     <div 
                         className={`-sidebar-details-type ${props.component.custom.align.value === "left" ? "enabled" : ""}`}
                         onClick={() => changeAlignment("left")}
@@ -43,6 +46,9 @@ export const SelectedText = (props) => {
                         {ICONS.alignright}
                     </div>
                 </div>
+            </div>
+            <div className="-sidebar-details-type-title">
+                Custom:
             </div>
             <SpaceBetween>
                 <div className='-navbar-checkbox-title'>
@@ -137,6 +143,9 @@ export const SelectedBox = (props) => {
     
     return (
         <>
+            <div className="-sidebar-details-type-title">
+                Custom:
+            </div>
             <SpaceBetween xs={props.component.custom.fill.on ? {} : {opacity: "0.5", pointerEvents: 'none'}}>
                 <Checkbox 
                     x={() => subcomponents.toggleCustom(props.component._id, "fill")} 

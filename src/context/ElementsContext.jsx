@@ -21,6 +21,16 @@ let counter = 0;
 const removeIndexFromArray = (arr, index) => [...arr.slice(0, index), ...arr.slice(index + 1)];
 const extractFrameID = (str) => str.split("_")[0];
 
+Number.prototype.roundToDecimalPlace = function(decimal) {
+    let mult = Math.pow(10, decimal);
+    return Math.round(this * mult) / mult;
+}
+
+String.prototype.roundToDecimalPlace = function(decimal) {
+    let newthis = Number(this);
+    let mult = Math.pow(10, decimal);
+    return String(Math.round(newthis * mult) / mult);
+}
 
 
 
@@ -611,7 +621,9 @@ const ElementsContextProvider = ({ children }) => {
                         className='-modal-prompt-wrapper' 
                         onClick={(e) => e.target.classList.contains("-modal-prompt-wrapper") && toggleModal()}>
                         <div className='-modal-prompt'>
-                            {element}
+                            <div className='-modal-prompt-content'>
+                                {element}
+                            </div>
                         </div>
                     </div>
                 }))
@@ -641,7 +653,7 @@ const ElementsContextProvider = ({ children }) => {
                 let unconcatenated = [];
                 let pos = {...cur.position};
                 for (let key of Object.keys(pos)) {
-                    pos[key] = Number(pos[key]).toFixed(2);
+                    pos[key] = Number(pos[key]).roundToDecimalPlace(2);
                 }
 
                 unconcatenated.push(`type: "${cur.type}"`);
@@ -733,7 +745,7 @@ const ElementsContextProvider = ({ children }) => {
             let ref = components[cind];
             let pos = {...ref.position};
             for (let key of Object.keys(pos)) {
-                pos[key] = Number(pos[key]).toFixed(2);
+                pos[key] = Number(pos[key]).roundToDecimalPlace(2);
             }
 
             // ! dont add any tabs, whitespace is preserved

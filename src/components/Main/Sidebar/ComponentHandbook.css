@@ -93,9 +93,44 @@
 pre.language-js {
     padding: 0 0.3vmax 0 0.3vmax !important;
     width: 94.1%;
-    border-radius: 0.2vmax;
+    border-radius: 0.3vmax;
     line-height: 0.8 !important;
     font-family: 'IBM Plex Mono', monospace !important;
+    background: var(--htmlbackground) !important;
+    filter: hue-rotate(180deg);
+    box-shadow: var(--shadow) 0px 0.07vmax 0.2vmax;
+    position: relative;
+}
+
+.-copy-code {
+    --distance: 0.25vmax;
+    width: 2vmax;
+    aspect-ratio: 1 / 1 !important;
+    box-sizing: border-box;
+    padding: 0.25vmax;
+    border: 1px solid var(--subnonaccent);
+    background: var(--background);
+    position: absolute;
+    top: var(--distance);
+    right: var(--distance);
+    transition-duration: 75ms;
+    cursor: pointer;
+    filter: hue-rotate(-180deg);
+    border-radius: 0.2vmax;
+}
+
+.-copy-code:hover {
+    border: 1px solid var(--nonaccent);
+}
+
+.-copy-code:hover > svg {
+    fill: var(--nonaccent);
+}
+
+.-copy-code > svg {
+    height: 100%;
+    fill: var(--subnonaccent);
+    transition-duration: 75ms;
 }
 
 .-handbook-code {

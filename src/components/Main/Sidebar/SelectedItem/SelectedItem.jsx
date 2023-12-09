@@ -22,11 +22,60 @@ const EMPTY_SELECTED = () => ({
 export default function SelectedItem() {
     const { components, subcomponents, other } = React.useContext(ElementsContext)
 
-    const [selected, setSelected] = React.useState(EMPTY_SELECTED())
+    // ! This function must stay above `selected` so it can be used to determine its state immediately
+    const CURRENT_SELECTED = () => {
+        if (subcomponents.selected.value) {
+            return (
+                components.value[
+                    components.getIndexOf(subcomponents.selected.value.split('_')[0])
+                ].subcomponents[
+                    subcomponents.getIndexOf(subcomponents.selected.value)
+                ]
+            )
+        } else if (components.selected.value) {
+            return (
+                components.value[components.getIndexOf(components.selected.value)]
+            )
+        } else {
+            return(
+                EMPTY_SELECTED()
+            )
+        }
+    }
+
+   
+
+    const CURRENT_ELEMENT = (selected) => 
+        selected
+        &&
+        "type" in selected
+        &&
+        (
+            (selected.type === "box" || selected.type === "round")
+            ?
+            <SelectedBox key={selected.type} component={selected}/>
+            :
+            selected.type === "text"
+            ?
+            <SelectedText component={selected} />
+            :
+            selected.type === "frame"
+            ?
+            <></>
+            :
+            <span 
+                className='-ambiguous-type'
+            >How did you select a non-existent type? Message me on discord: h.alcyon</span>
+        )
+
+    const [selected, setSelected] = React.useState(CURRENT_SELECTED());
+    const [currentSelectedElement, setCurrentSelectedElement] = React.useState(CURRENT_ELEMENT(CURRENT_SELECTED()));
 
     const [inputPosition, setInputPosition] = React.useState(
         EMPTY_INPUT_POSITION()
     );
+
+    
 
     /**
      * Three states:
@@ -52,7 +101,6 @@ export default function SelectedItem() {
     const askToConfirmDelete = () => {
         setDeletionProgress("asked");
     };
-
     /**
      * Used to track current selected (prioritize subcomponent)
      */
@@ -102,38 +150,84 @@ export default function SelectedItem() {
         }
 
         if (subcomponents.selected.value) {
-            setSelected(
-                components.value[
-                    components.getIndexOf(subcomponents.selected.value.split('_')[0])
-                ].subcomponents[
-                    subcomponents.getIndexOf(subcomponents.selected.value)
-                ]
-            )
+            let selected = components.value[
+                components.getIndexOf(subcomponents.selected.value.split('_')[0])
+            ].subcomponents[
+                subcomponents.getIndexOf(subcomponents.selected.value)
+            ]
+            setSelected(selected);
+            setCurrentSelectedElement(CURRENT_ELEMENT(selected));
         } else if (components.selected.value) {
-            setSelected(
-                components.value[components.getIndexOf(components.selected.value)]
-            )
+            let selected = components.value[components.getIndexOf(components.selected.value)];
+            setSelected(selected);
+            setCurrentSelectedElement(CURRENT_ELEMENT(selected));
         } else {
             setSelected(
                 EMPTY_SELECTED()
             )
+            setCurrentSelectedElement(<></>)
         }
 
         renewInputPosition();
     }, [components, subcomponents]);
 
     React.useEffect(() => {
+
+
         setDeletionProgress("none")
     }, [components.selected.value, subcomponents.selected.value])
 
 
     // TODO:
     const exportCodeButtonPress = () => { 
+        let code = other.getExportCode(selected._id);
+        const ANIMATION_DURATION = 550; // ! ms
+
+        const handleCopy = () => {
+            try {
+                navigator.clipboard.writeText(code);
+                document.querySelector(".-copy-code").animate([
+                    {border: "1px solid var(--accent)"},
+                    {border: "1px solid var(--subnonaccent)"}
+                ], {
+                    duration: ANIMATION_DURATION,
+                    fill: 'forwards'
+                })
+                document.querySelector('.-copy-code > svg').animate([
+                    {fill: 'var(--accent)'},
+                    {fill: 'var(--subnonaccent)'}
+                ], {
+                    duration: ANIMATION_DURATION,
+                    fill: 'forwards'
+                })
+            } catch (ex) {
+                try {
+                    document.querySelector(".-copy-code").animate([
+                        {border: "1px solid var(--complement)"},
+                        {border: "1px solid var(--subnonaccent)"}
+                    ], {
+                        duration: ANIMATION_DURATION,
+                        fill: 'forwards'
+                    })
+                    document.querySelector('.-copy-code > svg').animate([
+                        {fill: 'var(--complement)'},
+                        {fill: 'var(--subnonaccent)'}
+                    ], {
+                        duration: ANIMATION_DURATION,
+                        fill: 'forwards'
+                    })
+                } catch (ex) {} 
+            }
+        }
+
         other.modal.toggle(
             <pre className={`language-js`} style={{ whiteSpace: 'pre-line' }}>
+                <div className='-copy-code' onClick={handleCopy}>
+                    {ICONS.copy}
+                </div>
                 <code className="language-js -export-code">
                     {
-                        other.getExportCode(selected._id)
+                        code
                     }
                 </code>
             </pre>
@@ -209,33 +303,8 @@ export default function SelectedItem() {
                         <Position inputPosition={inputPosition} setInputPosition={setInputPosition} />
                         <div className='-subcomponent-specifics-wrapper'>
                             {
-                                /**
-                                 * ! React is stupid
-                                 * * I have to do check if its an object for EVERY ONE OF THESE CASES (trust me on this one)
-                                 * * Else React will throw an undefined error - How does that make sense? It absolutely doesnt
-                                 * * Thank you, react!
-                                 */
-                                typeof selected === "object"
-                                &&
-                                (selected.type === "box" || selected.type === "round")
-                                ?
-                                <SelectedBox component={selected}/>
-                                :
-                                typeof selected === "object"
-                                &&
-                                selected.type === "text"
-                                ?
-                                <SelectedText component={selected} />
-                                :
-                                typeof selected === "object"
-                                &&
-                                selected.type === "frame"
-                                ?
-                                <></>
-                                :
-                                <span 
-                                    className='-ambiguous-type'
-                                >How did you select a non-existent type? Message me on discord: h.alcyon</span>
+                                // ! CURRENT SELECTED ELEMENT
+                                currentSelectedElement
                             }
                         </div>
                         <div>
@@ -286,19 +355,22 @@ export default function SelectedItem() {
 function Position({inputPosition, setInputPosition}) {
     return (
         <div className="-sidebar-details-position-wrapper">
+            <div className="-sidebar-details-type-title">
+                Position:
+            </div>
             <div className="-sidebar-details-position-row">
                 <div className="-sidebar-details-position-box">
                     <div className="-sidebar-details-position-input-title -position-input lightblue">
                         X
                     </div>
                     <input
-                        value={inputPosition.x ? inputPosition.x?.toFixed(2) : "0"}
+                        value={inputPosition.x ? inputPosition.x?.roundToDecimalPlace(2) : "0"}
                         type="text"
                         className="-sidebar-details-position-input -position-input lightblue"
                         spellCheck="false"
                     />
                     <div className="-sidebar-details-position-input-text">
-                        {inputPosition.x ? inputPosition.x?.toFixed(2) : "0"}
+                        {inputPosition.x ? inputPosition.x?.roundToDecimalPlace(2) : "0"}
                         <span className="-small">%</span>
                     </div>
                 </div>
@@ -307,13 +379,13 @@ function Position({inputPosition, setInputPosition}) {
                         Y
                     </div>
                     <input
-                        value={inputPosition.y ? inputPosition.y?.toFixed(2) : "0"}
+                        value={inputPosition.y ? inputPosition.y?.roundToDecimalPlace(2) : "0"}
                         type="text"
                         className="-sidebar-details-position-input -position-input lightcoral"
                         spellCheck="false"
                     />
                     <div className="-sidebar-details-position-input-text">
-                        {inputPosition.y ? inputPosition.y?.toFixed(2) : "0"}
+                        {inputPosition.y ? inputPosition.y?.roundToDecimalPlace(2) : "0"}
                         <span className="-small">%</span>
                     </div>
                 </div>
@@ -324,13 +396,13 @@ function Position({inputPosition, setInputPosition}) {
                         WIDTH
                     </div>
                     <input
-                        value={inputPosition.width?.toFixed(2)}
+                        value={inputPosition.width?.roundToDecimalPlace(2)}
                         type="text"
                         className="-sidebar-details-position-input -position-input lightgreen"
                         spellCheck="false"
                     />
                     <div className="-sidebar-details-position-input-text">
-                        {inputPosition.width?.toFixed(2)}
+                        {inputPosition.width?.roundToDecimalPlace(2)}
                         <span className="-small">%</span>
                     </div>
                 </div>
@@ -339,13 +411,13 @@ function Position({inputPosition, setInputPosition}) {
                         HEIGHT
                     </div>
                     <input
-                        value={inputPosition.height?.toFixed(2)}
+                        value={inputPosition.height?.roundToDecimalPlace(2)}
                         type="text"
                         className="-sidebar-details-position-input -position-input orchid"
                         spellCheck="false"
                     />
                     <div className="-sidebar-details-position-input-text">
-                        {inputPosition.height?.toFixed(2)}
+                        {inputPosition.height?.roundToDecimalPlace(2)}
                         <span className="-small">%</span>
                     </div>
                 </div>

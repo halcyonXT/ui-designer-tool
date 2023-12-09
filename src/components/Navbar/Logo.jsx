@@ -2,7 +2,7 @@ import React from 'react'
 import './Logo.css'
 import logo from '/icon128.png';
 
-export default function Logo() {
+export default function Logo(props) {
     return (
         <div className='-navbar-logo'>
             <img

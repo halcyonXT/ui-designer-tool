@@ -4,7 +4,7 @@ import Main from './components/Main/Main'
 import './App.css'
 import { ElementsContext } from './context/ElementsContext'
 
-const __HUID_VERSION__ = "Beta v1.2.0"
+const __HUID_VERSION__ = "BETA V1.2.0"
 
 export default React.memo(function App() {
     const {other} = React.useContext(ElementsContext);
