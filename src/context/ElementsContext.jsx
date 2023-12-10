@@ -121,8 +121,18 @@ const ElementsContextProvider = ({ children }) => {
 
 
     const clamp = (min, val, max) => {
-        if (!options.value.borders) return Number(val);
-        return Math.max(min, Math.min(val, max));
+        let outp;
+        function roundToX(number, x) {
+            return Math.round(number / x) * x;
+        }
+        if (!options.value.borders) {
+            outp = Number(val); 
+        } else {
+            outp = Math.max(min, Math.min(val, max));
+        }
+        if (options.value.grid.snapTo) {
+            return roundToX(outp, Number(options.value.grid.size.slice(0, -1)))
+        } else return outp
     }
 
     const findIndexOfUID = (UID) => componentsRef.current.findIndex(obj => obj._id === UID); 
@@ -742,7 +752,7 @@ const ElementsContextProvider = ({ children }) => {
                     {fill: `${COLORS[newstatus]}`},
                     {fill: `var(--subnonaccent)`}
                 ], {
-                    duration: 350,
+                    duration: 700,
                     delay: 0,
                     fill: 'forwards'
                 })
@@ -980,6 +990,15 @@ const ElementsContextProvider = ({ children }) => {
             } catch (ex) {
                 console.warn("__components.toggleCustom - An error occured: " + ex);
             }
+        },
+
+        collapseToggle: (UID) => {
+            let cind = findIndexOfUID(extractFrameID(UID));
+            setComponents(prev => {
+                let outp = [...prev];
+                outp[cind]._componentCollapsed = !outp[cind]._componentCollapsed;
+                return outp;
+            })
         }
     }
 
@@ -1008,6 +1027,7 @@ const ElementsContextProvider = ({ children }) => {
                         value: selected,
                         select: selectComponent
                     },
+                    collapse: __component.collapseToggle,
                     getIndexOf: findIndexOfUID,
                     value: components,
                     set: setComponents,

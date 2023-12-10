@@ -14,7 +14,6 @@ const CREATE_STYLES = {
         top: component.position.y + "%",
         width: component.position.width + "%",
         height: component.position.height + "%",
-        margin: '1px',
     }),
 
     debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', outline: '1px solid var(--accent)' }) : ({}),
@@ -43,6 +42,10 @@ const SNAPLINING_OFFSET = 1;
 
 let offset = {x: null, y: null};
 
+function roundToX(number, x) {
+    return Math.round(number / x) * x;
+}
+
 export default function UIComponent(props) {
 
     const {components, snaplines, subcomponents} = React.useContext(ElementsContext);
@@ -55,6 +58,8 @@ export default function UIComponent(props) {
     const [offset, setOffset] = React.useState({x: null, y: null})
     const offsetRef = React.useRef(null);
     offsetRef.current = offset;
+
+    const gridRef = React.useRef(null);
 
     const componentRef = React.useRef(null);
 
@@ -90,8 +95,24 @@ export default function UIComponent(props) {
         });
     }
     
-    const emptySnaplines = () => setActiveSnaplines({x: EMPTY_SNAPLINE(), y: EMPTY_SNAPLINE()})
+    const emptySnaplines = () => setActiveSnaplines({x: EMPTY_SNAPLINE(), y: EMPTY_SNAPLINE()});
+
+    const SNAP_TO_GRID = Number(options.value.grid.size.slice(0, -1));
     
+    React.useEffect(() => {
+        if (options.value.grid.show) {
+            try {
+                if (subcomponents.selected.value) {
+                    gridRef.current.style.opacity = `1`;
+                    gridRef.current.style.backgroundSize = `${options.value.grid.size} ${options.value.grid.size}`;
+                } else {
+                    gridRef.current.style.opacity = `0`;
+                }
+            } catch (ex) {
+                console.warn("Grid error: " + ex)
+            }
+        }
+    }, [options, subcomponents.selected.value])
 
     const checkDragSnaplines = (key, percentage) => {
         if (!options.value.snaplines) return percentage;
@@ -106,12 +127,16 @@ export default function UIComponent(props) {
 
             if ((newpercentage > (ref[key] - SNAPLINING_OFFSET)) && (newpercentage < (ref[key] + SNAPLINING_OFFSET))) {
                 props.controlSnaplines.activate(key, ref[key]);
-                return ref[key] - (offset / 2);
+                if (options.value.grid.snapTo) {
+                    return roundToX(ref[key] - (offset / 2), SNAP_TO_GRID);
+                } else return ref[key] - (offset / 2);
             }
 
         }
         props.controlSnaplines.deactivate(key);
-        return percentage;
+        if (options.value.grid.snapTo) {
+            return roundToX(percentage, SNAP_TO_GRID);
+        } else return percentage
     }
 
 
@@ -186,6 +211,14 @@ export default function UIComponent(props) {
                     <ScaleToolOverlay mainRef={props.mainRef} controlSnaplines={props.controlSnaplines} component={props.component} />
                 }
 
+                {
+                    props.component._id === components.selected.value
+                    &&
+                    options.value.grid.show
+                    &&
+                    <div className='-grid' ref={gridRef}></div>
+                }
+
                 <div 
                     className='-COMPONENT-RELATIVE'
                     style={{
@@ -204,15 +237,15 @@ export default function UIComponent(props) {
 
                     {
                         // If the component hasnt been collapsed, render all subcomponents
-                        !props.component._componentCollapsed 
-                        &&
+                        /*!props.component._componentCollapsed 
+                        &&*/
                         props.component.subcomponents.map((item, index) => 
                             <UISubcomponent 
                                 key={item._id}
                                 parentRef={componentRef}
                                 component={item}
                                 zIndex={(components.getIndexOf(props.component._id) * 100) + index}
-                                parentDragActive={dragActiveRef.current}
+                                parentPosition={props.component.position}
                                 controlSnaplines={{activate: activateSnapline, deactivate: deactivateSnapline, empty: emptySnaplines}}
                             />
                         )

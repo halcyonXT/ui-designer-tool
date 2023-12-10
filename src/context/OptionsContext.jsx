@@ -13,8 +13,13 @@ const OptionsContextProvider = ({ children }) => {
     const [options, setOptions] = React.useState(({
         snaplines: true,
         borders: true,
-        outlines: false,
-        rulers: true
+        outlines: true,
+        rulers: true,
+        grid: {
+            show: true,
+            snapTo: true,
+            size: "1%"
+        }
     }))
 
     useEffect(() => {

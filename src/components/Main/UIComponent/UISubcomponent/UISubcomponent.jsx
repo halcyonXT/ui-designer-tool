@@ -6,14 +6,31 @@ import ScaleToolOverlaySC from './ScaleToolOverlaySC';
 
 const CREATE_STYLES = {
 
-    position: (component) => ({
-        position: 'absolute',
-        boxSizing: 'border-box',
-        left: component.position.x + "%",
-        top: component.position.y + "%",
-        width: component.position.width + "%",
-        height: component.position.height + "%",
-    }),
+    position: (component, opts = {snap: false, parent: {}}) => {
+        const DEFAULTS = {
+            position: 'absolute',
+            boxSizing: 'border-box',
+        }
+
+        if (!opts.snap) {
+            return ({
+                ...DEFAULTS,
+                left: component.position.x + "%",
+                top: component.position.y + "%",
+                width: component.position.width + "%",
+                height: component.position.height + "%",
+            })
+        } else {
+            //const dimensions = calculateNestedDivDimensions(parent.width, parent.height, component.position.width, component.position.height)
+            return ({
+                ...DEFAULTS,
+                left: component.position.x + "%",
+                top: component.position.y + "%",
+                width: component.position.width + "%",
+                height: component.position.height + "%",
+            })
+        }
+    },
 
     debug: (isDebug) => isDebug ? ({ boxSizing: 'border-box', outline: '1px solid var(--complement)' }) : ({}),
 
@@ -68,6 +85,16 @@ const CREATE_STYLES = {
     }
 }
 
+function calculateNestedDivDimensions(parentWidth, parentHeight, childWidthPercentage, childHeightPercentage) {
+    const childWidth = (parentWidth * childWidthPercentage) / 100;
+    const childHeight = (parentHeight * childHeightPercentage) / 100;
+  
+    return {
+      width: childWidth,
+      height: childHeight
+    };
+  }
+
 
 const SNAPLINING_OFFSET = 2;
 export default function UISubcomponent(props) {
@@ -79,11 +106,13 @@ export default function UISubcomponent(props) {
     const offsetRef = React.useRef(null);
     offsetRef.current = offset;
 
+    const propsComponentRef = React.useRef(null);
+    propsComponentRef.current = props.component;
+
     // ! Used only for the text type subcomponent, don't touch
     const textRef = React.useRef(null);
     
     const startDrag = (e) => {
-        if (props.parentDragActive) return;
         e.stopPropagation();
 
         window.addEventListener('mousemove', dragHandler);
@@ -169,34 +198,48 @@ export default function UISubcomponent(props) {
     const computeFontSize = () => {
         const isOverflown = () => (textRef.current.clientWidth > componentRef.current.clientWidth) || (textRef.current.clientHeight > componentRef.current.clientHeight)
 
-        let i = 2;
+        let i = 6;
         let overflow = false;
         
         const maxSize = 256 // very huge text size
 
-
+        const BACKTRACK_DISTANCE = 3;
         while (!overflow && i < maxSize) {
             textRef.current.style.fontSize = `${i}px`
             overflow = isOverflown()
-            if (!overflow) i++
+            if (!overflow) {
+                i += BACKTRACK_DISTANCE;
+            }
+        }
+
+        let limit = i;
+
+        i -= 1;
+
+        while (overflow && i > (limit - BACKTRACK_DISTANCE)) {
+            textRef.current.style.fontSize = `${i}px`
+            overflow = isOverflown()
+            if (overflow) {
+                i -= 1;
+            }
         }
 
         // revert to last state where no overflow happened:
-        textRef.current.style.fontSize = `${i - 1}px`
+        textRef.current.style.fontSize = `${i}px`
     }
 
     React.useEffect(() => {
         if (props.component.type === "text") {
             computeFontSize();
         }
-    }, [props.component.custom.value.value, props.component.type, props.component.position]);
+    }, [props.parentPosition, props.component.custom.value.value, props.component.type, props.component.position]);
 
     React.useEffect(() => {
         // ! used to debounce
         let timer = null;
 
         const recomputeFs = () => {
-            if (props.component.type !== "text") return;
+            if (propsComponentRef.current.type !== "text") return;
 
             if (timer) {
                 clearTimeout(timer);
@@ -221,7 +264,7 @@ export default function UISubcomponent(props) {
         // ! CREATE_STYLES hierarchy matters - The ones at the bottom override the ones at the top
         <div 
             style={{
-                ...CREATE_STYLES.position(props.component),
+                ...CREATE_STYLES.position(props.component, options.value.grid.snapTo ? ({snap: true, parent: props.parentPosition}) : ({snap: false, parent: null})),
                 ...CREATE_STYLES.debug(options.value.outlines),
                 ...props.component._privateStyles,
                 ...CREATE_STYLES.zIndex(props.zIndex),

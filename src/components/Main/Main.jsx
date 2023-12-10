@@ -33,6 +33,7 @@ export default function Main() {
 
 
     const mainRef = React.useRef(null);
+    const gridRef = React.useRef(null);
 
     const activateSnapline = (direction, percentage) => {
         let style = direction === "x" ? ({left: `${percentage}%`}) : ({top: `${percentage}%`});
@@ -74,6 +75,17 @@ export default function Main() {
         }
     }
 
+    React.useEffect(() => {
+        if (options.value.grid.show) {
+            if (!subcomponents.selected.value) {
+                gridRef.current.style.opacity = `1`;
+                gridRef.current.style.backgroundSize = `${options.value.grid.size} ${options.value.grid.size}`;
+            } else {
+                gridRef.current.style.opacity = `0`;
+            }
+        }
+    }, [options, subcomponents.selected.value])
+
 
     return (
         <div className='-main'>
@@ -81,7 +93,13 @@ export default function Main() {
             <div className='-main-display-wrapper'>
                 <div id='main' className='-main-display' ref={mainRef} onClick={handleDeselect}>
                     {
-                        // If the user has rules activated, render rulers overlay
+                        // * If used enabled show grid
+                        options.value.grid.show
+                        &&
+                        <div className='-grid' ref={gridRef}></div>
+                    }
+                    {
+                        // * If the user has rules activated, render rulers overlay
                         options.value.rulers
                         &&
                         <>

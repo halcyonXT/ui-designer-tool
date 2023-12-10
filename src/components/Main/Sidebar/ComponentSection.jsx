@@ -15,6 +15,7 @@ const ICONS = {
     box: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M120-120v-720h720v720H120Zm80-80h560v-560H200v560Zm0 0v-560 560Z"/></svg>,
     round: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>,
     text: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M280-160v-520H80v-120h520v120H400v520H280Zm360 0v-320H520v-120h360v120H760v320H640Z"/></svg>,
+    expand: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>
 }
 
 export const ComponentsSectionItem = (props) => {
@@ -36,6 +37,10 @@ export const ComponentsSectionItem = (props) => {
             components.hover.end(props.item._id);
         }
     }, [hovered])
+
+    const collapseTrigger = () => {
+        components.collapse(props.item._id);
+    }
 
     return (
         <>
@@ -70,9 +75,18 @@ export const ComponentsSectionItem = (props) => {
                             }
                         </IconAction>
                     }
+                    {
+                        <IconAction x={collapseTrigger} xs={!props.item._componentCollapsed ? {transform: 'rotate(90deg)'} : {}}>
+                        {
+                            ICONS.expand
+                        }
+                        </IconAction>
+                    }
                 </div>
             </div>
             {
+                !props.item._componentCollapsed
+                &&
                 props.item.subcomponents.map(item => 
                     <Subcomponent
                         item={item}

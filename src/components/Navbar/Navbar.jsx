@@ -26,6 +26,14 @@ export default function Navbar(props) {
         })
     }
 
+    const changeGrid = (key, value) => {
+        options.set(prev => {
+            let outp = {...prev};
+            outp.grid[key] = value;
+            return outp;
+        })
+    }
+
     // TODO
     // ! Make "save project"
 
@@ -66,6 +74,19 @@ export default function Navbar(props) {
                 </Checkbox>
             </Checkboxes>
             <div className="-navbar-separator"/>
+            <Checkboxes>
+                <Checkbox x={() => changeGrid("snapTo", !options.value.grid.snapTo)} activated={options.value.grid.snapTo}>
+                    Snap to grid
+                </Checkbox>
+                <Checkbox x={() => changeGrid("show", !options.value.grid.show)} activated={options.value.grid.show}>
+                    Show grid
+                </Checkbox>
+            </Checkboxes>
+            <div className='-navbar-whitespace'></div>
+            <Option>
+                <h6>Grid size:</h6>
+                <input type="range" className="win10-thumb -overlay-slider" min="1" max="5" value={options.value.grid.size.slice(0, -1)} onChange={(e) => changeGrid("size", e.target.value + "%")}/>
+            </Option>
             <Button shortcut="S" current={false} val='' xs={{marginLeft: 'auto'}} x={() => {}}>
                 {ICONS.save}
             </Button>
