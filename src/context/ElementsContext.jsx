@@ -950,7 +950,7 @@ const ElementsContextProvider = ({ children }) => {
             let formattedCode =
 `event.ship.setUIComponent({
     id: "${ref.id.huid_sanitizeID()}",
-    position: [${pos.x}, ${pos.y}, ${pos.height}, ${pos.width}],
+    position: [${pos.x}, ${pos.y}, ${pos.width}, ${pos.height}],
     clickable: ${ref.clickable},
     visible: ${ref.visible},
     components: [
