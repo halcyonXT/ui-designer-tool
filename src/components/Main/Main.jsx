@@ -1,6 +1,6 @@
 import React from 'react'
 import './Main.css'
-import GAME_OVERLAY from '../../assets/overlay.png'
+import GAME_OVERLAY from '../../assets/overlay.webp'
 import { OptionsContext } from '../../context/OptionsContext'
 import Sidebar from './Sidebar/Sidebar'
 import { ElementsContext } from '../../context/ElementsContext'

@@ -1050,7 +1050,9 @@ const ElementsContextProvider = ({ children }) => {
                         select: selectSubcomponent
                     },
                     add: addSubcomponent,
+                    // ! lord have mercy, i already used subcomponents.remove without realizing its called `delete` for components
                     remove: removeSubcomponent,
+                    delete: removeSubcomponent,
                     updatePos: updateSubcomponentPosition,
                     updateSize: updateSubcomponentSize,
                     changeType: __subcomponent.changeType,

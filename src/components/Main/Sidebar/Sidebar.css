@@ -14,7 +14,7 @@
 }
 
 .-sidebar-elements-wrapper {
-    min-height: 30%;
+    min-height: 10%;
     flex: 1;
     width: 100%;
     box-sizing: border-box;
@@ -130,7 +130,7 @@
     font-size: 0.7vmax;
     margin: 0;
     margin-left: 0.25vmax;
-    max-width: 12vmax;
+    max-width: 10vmax;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -305,6 +305,7 @@
 	-webkit-user-select: none;
 	touch-action: manipulation;
 	text-transform: uppercase;
+    position: relative;
 }
 
 
@@ -312,7 +313,9 @@
 	background-color: var(--htmlbackground);
 	border-radius: 0.3vmax;
 	color: var(--nonaccent);
-
+    border: 1px solid var(--dark);
+	box-shadow: var(--shadow) 0px 0.35vmax 13px, inset var(--shadow) 0px -0.0vmax 10px;
+	
 	cursor: pointer;
 	width: 32%;
 	padding: 0.3vmax 1.1vmax;
@@ -320,7 +323,6 @@
     place-items: center;
 	transition: all 75ms;
 	font-weight: 900;
-    border: 0;
 	font-size: 0.8vmax;
 	user-select: none;
 	-webkit-user-select: none;

@@ -213,7 +213,7 @@ input[type="range"] {
 }
 
 input[type="range"].win10-thumb {
-	color: #2b2d42;
+	color: var(--accent);
 
 	--thumb-height: 1vmax;
 	--thumb-width: 0.25vmax;

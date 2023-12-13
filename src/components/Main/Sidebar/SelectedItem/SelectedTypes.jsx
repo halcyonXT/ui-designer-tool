@@ -186,8 +186,9 @@ export const SelectedBox = (props) => {
         let sanitized = sanitizeString(e.target.value);
 
         if (!sanitized) {
-            sanitized = "1";
+            sanitized = "";
         }
+
 
         setColors(prev => {
             let outp = {...prev};
@@ -195,7 +196,9 @@ export const SelectedBox = (props) => {
             return outp;
         })
 
-        subcomponents.changeCustom(props.component._id, "width", sanitized);
+        if (sanitized) {
+            subcomponents.changeCustom(props.component._id, "width", sanitized);
+        }
     }
     
     return (

@@ -87,7 +87,7 @@ export default function Navbar(props) {
                 <h6>Grid size:</h6>
                 <input type="range" className="win10-thumb -overlay-slider" min="1" max="5" value={options.value.grid.size.slice(0, -1)} onChange={(e) => changeGrid("size", e.target.value + "%")}/>
             </Option>
-            <Button shortcut="S" current={false} val='' xs={{marginLeft: 'auto'}} x={() => {}}>
+            <Button shortcut="S" current={false} val='' x={() => {}}>
                 {ICONS.save}
             </Button>
         </div>
