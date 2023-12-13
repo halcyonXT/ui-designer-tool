@@ -16,6 +16,7 @@
 .-navbar-logo-text, .-navbar-logo-subtext {
     margin: 0;
     margin-left: 0.5vmax;
+    text-shadow: rgba(var(--accent-list), 0.40) 0 0 0.35vmax;
     font-size: 0.8vmax;
     color: var(--accent);
     font-family: 'Syncopate', sans-serif;
@@ -23,6 +24,7 @@
 
 .-navbar-logo-subtext {
     font-size: 0.4vmax;
+    text-shadow: black 0px 0px 0px;
     color: var(--subnonaccent);
 }
 

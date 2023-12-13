@@ -2,6 +2,8 @@ import React from 'react'
 import './Navbar.css';
 import Logo from './Logo';
 import { OptionsContext } from '../../context/OptionsContext';
+import { ElementsContext } from '../../context/ElementsContext';
+import SaveModal from './SaveModal';
 
 const ICONS = {
     pointer_tool: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m314.615-393.076 87.078-121.539h182.693L314.615-726.77v333.694Zm230.231 276.15L405.615-416.617 254.616-205.773v-644.225l503.073 395.382H497.922l137.845 295.152-90.921 42.538ZM401.693-514.615Z"/></svg>,
@@ -13,6 +15,7 @@ const ICONS = {
 
 export default function Navbar(props) {
     const {overlayOpacity, tool, options} = React.useContext(OptionsContext);
+    const {other} = React.useContext(ElementsContext)
 
     const changeOpacity = (e) => {
         overlayOpacity.set(e.target.value);
@@ -36,6 +39,11 @@ export default function Navbar(props) {
 
     // TODO
     // ! Make "save project"
+    const openSaveModal = () => {
+        other.modal.toggle(
+            <SaveModal />
+        )
+    }
 
     return (
         <div className='-navbar'>
@@ -85,9 +93,9 @@ export default function Navbar(props) {
             <div className='-navbar-whitespace'></div>
             <Option>
                 <h6>Grid size:</h6>
-                <input type="range" className="win10-thumb -overlay-slider" min="1" max="5" value={options.value.grid.size.slice(0, -1)} onChange={(e) => changeGrid("size", e.target.value + "%")}/>
+                <input type="range" className="win10-thumb -overlay-slider" min="0.5" max="5" step={0.5} value={options.value.grid.size.slice(0, -1)} onChange={(e) => changeGrid("size", e.target.value + "%")}/>
             </Option>
-            <Button shortcut="S" current={false} val='' x={() => {}}>
+            <Button shortcut="S" current={false} val='' x={openSaveModal}>
                 {ICONS.save}
             </Button>
         </div>

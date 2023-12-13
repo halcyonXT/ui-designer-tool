@@ -221,16 +221,19 @@ export default function SelectedItem() {
         }
 
         other.modal.toggle(
-            <pre className={`language-js`} style={{ whiteSpace: 'pre-line' }}>
-                <div className='-copy-code' onClick={handleCopy}>
-                    {ICONS.copy}
-                </div>
-                <code className="language-js -export-code">
-                    {
-                        code
-                    }
-                </code>
-            </pre>
+            <>
+                <h1 className='-sm-title'>{selected.id.toUpperCase()} CODE EXPORT</h1>
+                <pre className={`language-js`} style={{ whiteSpace: 'pre-line' }}>
+                    <div className='-copy-code' onClick={handleCopy}>
+                        {ICONS.copy}
+                    </div>
+                    <code className="language-js -export-code">
+                        {
+                            code
+                        }
+                    </code>
+                </pre>
+            </>
         )
         setTimeout(() => {
             Prism.highlightAll();

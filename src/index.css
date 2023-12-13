@@ -19,6 +19,8 @@ body, html {
 
 * {
   user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 
@@ -28,7 +30,8 @@ body, html {
   --background: #15191c;
   --foreground: #20262b;
   --shadow: #0a0c0e;
-  --accent: #3dffa4;
+  --accent: rgb(61,255,164);
+  --accent-list: 61, 255, 164;
   --complement: #ff3d98;
   --subaccent: rgb(82, 146, 115);
   --nonaccent: #e4e7eb;

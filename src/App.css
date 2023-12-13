@@ -32,7 +32,7 @@
 
     --notchSize: 20px;
 
-    animation: expand 0.2s ease-out 0s 1 normal forwards;
+    animation: expand 120ms ease-out 0s 1 normal forwards;
     background: var(--background);
 
     /*clip-path: 
@@ -51,11 +51,11 @@
 @keyframes expand {
     from {
         opacity: 0;
-        transform: scaleX(0.1);
+        transform: scale(0.25);
     }
     to {
         opacity: 1;
-        transform: scaleX(1);
+        transform: scale(1);
     }
 }
 
@@ -65,7 +65,7 @@
     box-sizing: border-box;
     width: 100%;
     opacity: 0;
-    animation: content-appear 120ms linear 0.2s 1 normal forwards;
+    animation: content-appear 120ms linear 60ms 1 normal forwards;
 }
 
 @keyframes content-appear {

@@ -829,6 +829,31 @@ const ElementsContextProvider = ({ children }) => {
                 console.warn(`Duplicate exception: ` + ex);
                 __other._animationStatus('error', '#duplicate_btn > svg')
             }
+        },
+
+        /**
+         * Loads project from local file or local storage json
+         * @param {string} projJSON - Valid stringified json of project
+         */
+        parseSavedProject: (projJSON) => {
+            try {
+
+                const PROJECT = JSON.parse(projJSON);
+    
+                setModal({
+                    active: false,
+                    element: <></>
+                })
+                
+                setSelected(null);
+                setSelectedSubcomponent(null);
+                setComponents(PROJECT.data.components.value);
+                setSnaplines(PROJECT.data.snaplines.value);
+                setSubcomponentSnaplines(PROJECT.data.snaplines.subcomponents.value)
+
+            } catch (ex) {
+                console.warn("Failed to load project: " + ex)
+            }
         }
     }
 
@@ -1017,6 +1042,7 @@ const ElementsContextProvider = ({ children }) => {
                         paste: __other.pasteElementFromClipboard,
                         duplicate: __other.duplicate
                     },
+                    parseSavedProject: __other.parseSavedProject
                 },
                 components: {
                     _scaling: {
