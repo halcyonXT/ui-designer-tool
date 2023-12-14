@@ -710,15 +710,15 @@ const ElementsContextProvider = ({ children }) => {
         return components[cind].subcomponents.findIndex(obj => obj._id === UID);
     }
 
-    const toggleModal = (element) => {
+    const toggleModal = (element, toggleAnim = false) => {
         try {
             if (!modal.active) {
                 setModal(prev => ({
-                    active: !prev.active,
+                    active: true,
                     element: 
                     <div 
-                        className='-modal-prompt-wrapper' 
-                        onClick={(e) => e.target.classList.contains("-modal-prompt-wrapper") && toggleModal()}>
+                        className={`-modal-prompt-wrapper ${toggleAnim ? "-fade-anim" : ""}`} 
+                        onClick={(e) => e.target.classList.contains("-modal-prompt-wrapper") && toggleModal(element, true)}>
                         <div className='-modal-prompt'>
                             <div className='-modal-prompt-content'>
                                 {element}
@@ -726,8 +726,16 @@ const ElementsContextProvider = ({ children }) => {
                         </div>
                     </div>
                 }))
+                if (toggleAnim) {
+                    setTimeout(() => {
+                        setModal({active: false, element: <></>})
+                    }, 180)
+                }
             } else {
-                setModal({active: false, element: <></>})
+                document.querySelector(".-modal-prompt-wrapper").classList.add('-fade-anim');
+                setTimeout(() => {
+                    setModal({active: false, element: <></>})
+                }, 2000)
             }
         } catch (ex) {
             console.warn(`Bad modal trigger: ` + ex);

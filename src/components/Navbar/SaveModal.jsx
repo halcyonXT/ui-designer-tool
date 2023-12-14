@@ -67,6 +67,7 @@ export default function SaveModal(props) {
 
         refreshObjectLocalStorage();
         toggleFormInput();
+        setForm(prev => ({...prev, data: {name: ""}}))
 
         if (form.saveCurrent.scheduled) {
             loadProject(form.saveCurrent.id, true);

@@ -32,7 +32,7 @@
 
     --notchSize: 20px;
 
-    animation: expand 120ms ease-out 0s 1 normal forwards;
+    animation: expand 160ms ease-out 0s 1 normal forwards;
     background: var(--background);
 
     /*clip-path: 
@@ -51,7 +51,7 @@
 @keyframes expand {
     from {
         opacity: 0;
-        transform: scale(0.25);
+        transform: scale(0.75);
     }
     to {
         opacity: 1;
@@ -65,7 +65,7 @@
     box-sizing: border-box;
     width: 100%;
     opacity: 0;
-    animation: content-appear 120ms linear 60ms 1 normal forwards;
+    animation: content-appear 120ms linear 80ms 1 normal forwards;
 }
 
 @keyframes content-appear {
@@ -75,6 +75,25 @@
     to {
         opacity: 1
     }
+}
+
+@keyframes fade {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.75);
+    }
+}
+
+.-fade-anim {
+    animation: fade 0.12s linear 60ms 1 normal forwards;
+}
+
+.-fade-content-anim {
+    animation: content-appear 75ms linear 0s 1 reverse forwards;
 }
 
 .-modal-prompt-wrapper.inactive {
