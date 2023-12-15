@@ -960,6 +960,26 @@ const ElementsContextProvider = ({ children }) => {
             } catch (ex) {
                 console.warn("__subcomponents.changeCustom - An error occured: " + ex);
             }
+        },
+
+
+        /**
+         * Changes the non-unique identifier `id` of subcomponents
+         * @param {string} UID - Unique subcomponent identifier 
+         * @param {string} value - The value to be assigned  
+         */
+        changeID: (UID, value) => {
+            let cind = findIndexOfUID(extractFrameID(UID));
+            let sind = findIndexOfSubcomponent(UID);
+            try {
+                setComponents(prev => {
+                    let outp = [...prev];
+                    outp[cind].subcomponents[sind].id = value;
+                    return outp;
+                })
+            } catch (ex) {
+                console.warn("__subcomponents.changeID - An error occured: " + ex);
+            }
         }
     }
 
@@ -1091,6 +1111,7 @@ const ElementsContextProvider = ({ children }) => {
                     updateSize: updateSubcomponentSize,
                     changeType: __subcomponent.changeType,
                     changeCustom: __subcomponent.changeCustom,
+                    changeID: __subcomponent.changeID,
                     toggleCustom: __subcomponent.toggleCustom,
                     hover: {
                         start: (UID) => hoverSubcomponentApplyStyles("start", UID),

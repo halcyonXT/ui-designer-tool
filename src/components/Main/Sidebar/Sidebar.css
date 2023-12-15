@@ -253,6 +253,16 @@
     place-items: center;
 }
 
+.-sidebar-details-title-icon.edit {
+    fill: var(--subnonaccent) !important;
+    margin-left: 0.15vmax;
+    transition-duration: 75ms;
+}
+
+.-sidebar-details-title-icon.edit:hover {
+    fill: var(--nonaccent) !important;
+}
+
 .-sidebar-details-notice {
     font-size: 0.7vmax;
     width: 17vmax;
@@ -363,6 +373,10 @@
 
 .-sidebar-details-title-current {
     color: var(--nonaccent);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 85%;
 }
 
 

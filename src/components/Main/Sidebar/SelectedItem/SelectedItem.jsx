@@ -483,6 +483,13 @@ const FrameSelected = (props) => {
 
 const SubcomponentSelected = (props) => {
     if (!props.component || !props.parent) return <></>;
+    const {subcomponents} = React.useContext(ElementsContext);
+
+    const [editNameTriggered, setEditNameTriggered] = React.useState(false); 
+
+    const onBlur = () => {
+        setEditNameTriggered(false);
+    }
 
     return (
         <div className="-sidebar-details-title">
@@ -490,10 +497,30 @@ const SubcomponentSelected = (props) => {
                 {props.parent.id}&nbsp;&nbsp;&gt;
             </span>
             <div className='-name-flex'>
-                <span className='-sidebar-details-title-icon'>{ICONS[props.component.type]}</span>
-                <span className="-sidebar-details-title-current">
-                    {props.component.id}
-                </span>
+                {
+                    editNameTriggered
+                    ?
+                    (
+                        <input 
+                            type="text" 
+                            id="change_name" 
+                            className="-sm-save-section-input" 
+                            autoFocus={true}
+                            value={props.component.id}
+                            onChange={(e) => subcomponents.changeID(props.component._id, e.target.value)} 
+                            onBlur={onBlur}
+                            spellCheck={false}
+                        />
+                    )
+                    :
+                    <>
+                        <span className='-sidebar-details-title-icon'>{ICONS[props.component.type]}</span>
+                        <span className="-sidebar-details-title-current">
+                            {props.component.id}
+                        </span>
+                        <span className='-sidebar-details-title-icon edit' onClick={() => setEditNameTriggered(p => !p)}>{ICONS["edit"]}</span>
+                    </>
+                }
             </div>
         </div>
     );
