@@ -65,12 +65,14 @@ export default function Sidebar() {
                                             Start by creating a frame
                                         </div>
                                     ) : (
-                                        components.value.map((item) => (
+                                        components.value.map((item, index) => (
                                             <ComponentsSectionItem
                                                 key={item._id}
                                                 selected={components.selected.value === item._id}
                                                 delete={() => deleteElement(item._id)}
                                                 item={item}
+                                                isFirst={index === 0}
+                                                isLast={index === components.value.length - 1}
                                             />
                                         ))
                                     )

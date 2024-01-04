@@ -15,11 +15,37 @@ const createUID = () => {
 let counter = 0;
 
 
-
-
-
 const removeIndexFromArray = (arr, index) => [...arr.slice(0, index), ...arr.slice(index + 1)];
 const extractFrameID = (str) => str.split("_")[0];
+
+Array.prototype.swap = function (index1, index2) {
+    if (
+        index1 < 0 ||
+        index1 >= this.length ||
+        index2 < 0 ||
+        index2 >= this.length
+    ) {
+        console.warn("Array.prototype.swap error: Invalid indices provided");
+        return this;
+    }
+
+    [this[index1], this[index2]] = [this[index2], this[index1]];
+    return this;
+};
+
+function swap(arr, index1, index2) {
+    // Check if indices are within the array bounds
+    if (index1 < 0 || index1 >= arr.length || index2 < 0 || index2 >= arr.length) {
+      console.warn("ElementsContext swap(...) error: Invalid indices provided (" + index1 + " & " + index2 +") on array of length " + arr.length);
+      return arr;
+    }
+  
+    // Create a new array with the swapped elements
+    const newArray = [...arr];
+    [newArray[index1], newArray[index2]] = [newArray[index2], newArray[index1]];
+  
+    return newArray;
+  }
 
 Number.prototype.roundToDecimalPlace = function(decimal) {
     let mult = Math.pow(10, decimal);
@@ -867,6 +893,42 @@ const ElementsContextProvider = ({ children }) => {
 
     const __subcomponent = {
         /**
+         * Used to change the hierarchy. Moves element up or down
+         * 
+         * NOTE: When used externally, case-insensitive "up" and "down" will get parsed to 1 and -1
+         * Can also pass any number externally
+         * @param {Number} direction 
+         */
+        moveSubcomponent: (direction, UID) => {
+            let truedirection = 0;
+            if (typeof direction === "number") {
+
+                truedirection = direction;
+
+            } else if (typeof direction === "string" && ["up", "down"].includes(direction.toLowerCase())) {
+
+                if (direction.toLowerCase() === "up") {
+                    truedirection = -1;
+                } else {
+                    truedirection = 1;
+                }
+
+            } else {
+                return console.warn("__subcomponent.moveSubcomponent: Ambiguous `direction` argument provided (" + typeof direction + ": " + direction + ")")
+            }
+
+            let sind = findIndexOfSubcomponent(UID);
+            let cind = findIndexOfUID(extractFrameID(UID));
+            
+            // * truedirection === -1 => sind + (-1) === sind - 1
+            setComponents(prev => {
+                let outp = [...prev];
+                outp[cind].subcomponents = swap(prev[cind].subcomponents, (sind), (sind + truedirection));
+                return outp;
+            })
+        },
+
+        /**
          * Used only internally for `__components.exportCode`
          */
         _parseCodeOfSubcomponents: (UID) => {
@@ -985,6 +1047,37 @@ const ElementsContextProvider = ({ children }) => {
 
     const __component = {
         /**
+         * Used to change the hierarchy. Moves element up or down
+         * 
+         * NOTE: When used externally, case-insensitive "up" and "down" will get parsed to 1 and -1
+         * Can also pass any number externally
+         * @param {Number} direction 
+         */
+        moveComponent: (direction, UID) => {
+            let truedirection = 0;
+            if (typeof direction === "number") {
+
+                truedirection = direction;
+
+            } else if (typeof direction === "string" && ["up", "down"].includes(direction.toLowerCase())) {
+
+                if (direction.toLowerCase() === "up") {
+                    truedirection = -1;
+                } else {
+                    truedirection = 1;
+                }
+
+            } else {
+                return console.warn("__subcomponent.moveSubcomponent: Ambiguous `direction` argument provided (" + typeof direction + ": " + direction + ")")
+            }
+
+            let cind = findIndexOfUID(UID);
+            
+            // * truedirection === -1 => sind + (-1) === sind - 1
+            setComponents(prev => swap(prev, cind, cind + truedirection))
+        },
+
+        /**
          * Works regardless of whether a subcomponent id or a frame id is passed in
          * @param {string} UID 
          */
@@ -1081,6 +1174,7 @@ const ElementsContextProvider = ({ children }) => {
                         value: selected,
                         select: selectComponent
                     },
+                    moveItem: __component.moveComponent,
                     collapse: __component.collapseToggle,
                     getIndexOf: findIndexOfUID,
                     value: components,
@@ -1103,6 +1197,7 @@ const ElementsContextProvider = ({ children }) => {
                         value: selectedSubcomponent,
                         select: selectSubcomponent
                     },
+                    moveItem: __subcomponent.moveSubcomponent,
                     add: addSubcomponent,
                     // ! lord have mercy, i already used subcomponents.remove without realizing its called `delete` for components
                     remove: removeSubcomponent,
