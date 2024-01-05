@@ -1,6 +1,6 @@
 In the vast landscape of online communities, there exists an insufferable relic, an aged egoist, who, with every keystroke, reinforces the delusion that his mere existence holds unparalleled significance. 
 
-This self-proclaimed guardian of a certaub community Discord server is a spectacle of arrogance and inefficacy. 
+This self-proclaimed guardian of a certain community Discord server is a spectacle of arrogance and inefficacy. 
 
 Instead of moderating with a semblance of competence, he resorts to sporadic interventions — handing out warnings like a miser distributing crumbs. 
 
